@@ -3,6 +3,13 @@ output_dir: "."
 navbar:
   title: "Home"
   right:
+    - text: "Project Report"
+      href: 
+    - text: "EDA"
+      href: summary_viz.html
+    - text: "Statistical Analysis"
+      href: data_analysis.html
+      href: https://fianltornadoes.shinyapps.io/rshiny/
     - icon: fa-envelope fa-lg
       href: mailto:<jc6422@cumc.columbia.edu>
     - icon: fa-github fa-lg
