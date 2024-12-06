@@ -4,14 +4,15 @@ navbar:
   title: "Home"
   right:
     - text: "Project Report"
-      href: 
+      href: summary_viz.html
     - text: "EDA"
       href: summary_viz.html
     - text: "Statistical Analysis"
       href: data_analysis.html
+    - text: "Shiny App"
       href: https://fianltornadoes.shinyapps.io/rshiny/
     - icon: fa-envelope fa-lg
-      href: mailto:<jc6422@cumc.columbia.edu>
+      href: mailto:jc6422@cumc.columbia.edu
     - icon: fa-github fa-lg
       href: https://github.com/jingxw02/p8105_final_tornado
 output:

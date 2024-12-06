@@ -1,0 +1,38 @@
+---
+title: "data clean & EDA"
+author: "Tianci Zhu"
+output: 
+  github_document:
+    html_preview: false
+    always_allow_html: true
+---
+
+```{r}
+webshot::install_phantomjs()
+```
+
+## Clean data
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(plotly)
+```
+
+```{r}
+tornado_data <- read.csv("D:/rdata/1950-2023_actual_tornadoes.csv", na.strings = c("NA", "N/A", " "))
+
+cleaned <- tornado_data |>
+  filter(yr >= 2000) |>
+  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |>
+  relocate(fc, .after = mag)|>
+  drop_na()
+  
+# Optional
+write.csv(cleaned, "cleaned_df.csv", row.names = FALSE)
+```
+
+```{r}
+summary(cleaned)
+skimr::skim(cleaned)  
+```
+

@@ -1,0 +1,137 @@
+---
+title: "EDA"
+author: "Tianci Zhu"
+output:  
+  github_document:
+    html_preview: false
+    always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(plotly)
+```
+
+## Clean data
+```{r}
+tornado_data <- read.csv("D:/rdata/1950-2023_actual_tornadoes.csv", na.strings = c("NA", "N/A", " "))
+
+cleaned <- tornado_data |>
+  filter(yr >= 2000) |>
+  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |>
+  relocate(fc, .after = mag)|>
+  drop_na()
+  
+# Optional
+write.csv(cleaned, "cleaned_df.csv", row.names = FALSE)
+```
+
+```{r}
+summary(cleaned)
+skimr::skim(cleaned)  
+```
+
+## EDA
+
+Which states have experienced the highest cumulative property losses due to tornadoes?
+```{r}
+# States with highest average property loss per tornado
+state_property_loss <- cleaned |>
+  group_by(st) |>
+  summarize(avg_loss = mean(loss, na.rm = TRUE)) |>
+  arrange(desc(avg_loss)) |>
+  slice(1:10) |>
+  plot_ly(x = ~st, y = ~avg_loss, type = 'bar') |>
+  layout(title = "Top 10 States with Highest Average Property Loss",
+         xaxis = list(title = "State"),
+         yaxis = list(title = "Average Property Loss (Millions)"))
+state_property_loss
+```
+
+What is the relationship between tornado path length, path width, and property loss?
+```{r}
+# Correlation between path length, width, and property loss
+corr <- cleaned |>
+  plot_ly(x = ~len, y = ~wid, z = ~loss, color = ~mag) |>
+  add_markers() |>
+  layout(title = "Correlation Between Path Length, Width, and Property Loss",
+         scene = list(xaxis = list(title = "Path Length (miles)"),
+                      yaxis = list(title = "Path Width (yards)"),
+                      zaxis = list(title = "Property Loss (Millions)")))
+corr
+```
+
+Are tornadoes occurring in certain months more likely to cause higher fatalities, injuries, or property losses?
+```{r}
+# Impact_score column
+cleaned <- cleaned |>
+  mutate(impact_score = inj + fat * 10 + loss / 1e6)
+
+# Add a rank column to identify the top 10 tornadoes
+top_tornadoes <- cleaned |>
+  arrange(desc(impact_score)) |>
+  slice(1:10) |>
+  mutate(tornado_id = paste("Tornado", row_number()))
+
+top_tornadoes <- top_tornadoes |>
+  plot_ly(
+    x = ~tornado_id,
+    y = ~impact_score,
+    type = 'bar'
+  ) |>
+  layout(
+    title = "Top 10 Most Destructive Tornadoes",
+    xaxis = list(title = "Tornado ID"),
+    yaxis = list(title = "Impact Score")
+  )
+
+top_tornadoes
+```
+
+total number of tornadoes for each state?
+```{r}
+state_tornado_count_map <- cleaned |>
+  group_by(st) |>
+  summarize(total_tornadoes = n()) |>
+  plot_ly(
+    type = 'choropleth',
+    locations = ~st,
+    locationmode = 'USA-states',
+    z = ~total_tornadoes,
+    colorscale = "Viridis", 
+    zmin = 0,               
+    zmax = max(cleaned$st, na.rm = TRUE), 
+    colorbar = list(title = "Total Tornadoes")
+  ) |>
+  layout(
+    title = "Total Tornado Numbers by State",
+    geo = list(scope = "usa")
+  )
+
+state_tornado_count_map
+```
+
+Total number of tornadoes for each state?
+```{r}
+state_loss_map <- cleaned |>
+  group_by(st) |>
+  summarize(total_loss = sum(loss, na.rm = TRUE)) |>
+  plot_ly(
+    type = 'choropleth',
+    locations = ~st,
+    locationmode = 'USA-states',
+    z = ~total_loss,
+    colorscale = "Viridis", 
+    zmin = 0,               
+    zmax = max(cleaned$loss, na.rm = TRUE), 
+    colorbar = list(title = "Total Loss (Millions)")
+  ) |>
+  layout(
+    title = "Total Property Loss by State",
+    geo = list(scope = "usa")
+  )
+
+state_loss_map
+```
+
