@@ -464,6 +464,23 @@ and loss. This suggests that while cross-validation slightly improves
 predictive accuracy, the variable hierarchy remains consistent with the
 pruned tree.</p>
 </div>
+<div id="importance" class="section level3">
+<h3>Importance</h3>
+<pre class="r"><code>tree_model$variable.importance</code></pre>
+<pre><code>##        mag        len       loss        wid 
+## 947829.455 605831.823  63904.583   9161.009</code></pre>
+<pre class="r"><code>cv_model$finalModel$variable.importance</code></pre>
+<pre><code>##        mag        len       loss        wid 
+## 947829.455 605831.823  63904.583   9161.009</code></pre>
+<p>Variable importance rankings in both models reinforce the dominance
+of magnitude (<code>mag</code>), which has a significantly higher score
+than the other variables. Path length (<code>len</code>) is the second
+most influential factor, followed by property loss (<code>loss</code>).
+Tornado width (<code>wid</code>) has a minor role, suggesting that its
+contribution to injury predictions is less direct. These rankings
+highlight the importance of focusing on magnitude and path length when
+assessing tornado injury risks.</p>
+</div>
 </div>
 <div id="how-do-fatalities-and-loss-differ-across-seasons"
 class="section level2">
@@ -628,7 +645,7 @@ lm_spec =linear_reg()|&gt;
 final_model=lm(fat ~ mag + inj + loss + len + wid, data = cleaned)
 
 check_model(final_model, check = c(&quot;linearity&quot;, &quot;qq&quot;, &quot;homogeneity&quot;, &quot;outliers&quot;))</code></pre>
-<p><img src="model_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="model_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <div id="diagnostic-report-for-linear-regression-model"
 class="section level3">
 <h3>Diagnostic Report for Linear Regression Model</h3>
@@ -824,7 +841,7 @@ cv_long|&gt;ggplot(aes(x = model, y = rmse)) +
     y = &quot;RMSE&quot;
   ) +
   theme_minimal()</code></pre>
-<p><img src="model_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p><img src="model_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 <p>It is observed that the better performance of the first model
 <code>model1_mod</code> using cross-validation is slightly better
 compared to the second model <code>model2_mod</code>, with the RMSE

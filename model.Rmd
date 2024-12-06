@@ -74,8 +74,16 @@ cv_model <- train(
 rpart.plot(cv_model$finalModel, type = 3, extra = 101, fallen.leaves = TRUE)
 ```
 
-
 The cross-validated tree confirms that magnitude (`mag`) is the most critical factor, with injuries significantly increasing for `mag` >= 4. This model captures more nuanced relationships among variables, such as the interplay between path length (`len`) and property loss (`loss`). Long paths (`len` >= 75) consistently predict the highest injury counts, while shorter paths refine the predictions based on magnitude and loss. This suggests that while cross-validation slightly improves predictive accuracy, the variable hierarchy remains consistent with the pruned tree.
+
+### Importance
+
+```{r}
+tree_model$variable.importance
+cv_model$finalModel$variable.importance
+```
+
+Variable importance rankings in both models reinforce the dominance of magnitude (`mag`), which has a significantly higher score than the other variables. Path length (`len`) is the second most influential factor, followed by property loss (`loss`). Tornado width (`wid`) has a minor role, suggesting that its contribution to injury predictions is less direct. These rankings highlight the importance of focusing on magnitude and path length when assessing tornado injury risks.
 
 ## 4. How do fatalities and loss differ across seasons
 
