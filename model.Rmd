@@ -50,7 +50,6 @@ pruned_tree <- prune(tree_model, cp = best_cp)
 rpart.plot(pruned_tree, type = 3, extra = 101, fallen.leaves = TRUE)
 ```
 
-
 The pruned decision tree identifies magnitude (`mag`) as the primary factor influencing tornado-related injuries. Tornadoes with `mag` < 4 predict minimal injuries, averaging 0.2 injuries in most cases, indicating that low-magnitude tornadoes pose minimal risk. For tornadoes with `mag` >= 4, injuries increase substantially, with additional splits showing that long paths (`len` >= 75 miles) and high property loss (`loss` >= 23) are associated with severe injury outcomes. This hierarchy underscores the dominant role of magnitude, with path length and property loss acting as secondary risk factors in extreme scenarios.
 
 ##### 2. Cross-Validation
@@ -84,6 +83,8 @@ cv_model$finalModel$variable.importance
 ```
 
 Variable importance rankings in both models reinforce the dominance of magnitude (`mag`), which has a significantly higher score than the other variables. Path length (`len`) is the second most influential factor, followed by property loss (`loss`). Tornado width (`wid`) has a minor role, suggesting that its contribution to injury predictions is less direct. These rankings highlight the importance of focusing on magnitude and path length when assessing tornado injury risks.
+
+The decision tree visualizations clearly illustrate key thresholds in the data. For `mag` >= 4, injuries escalate, particularly when combined with long paths (`len` >= 75) or high property loss (`loss` >= 23). Tornadoes with `mag` < 4 result in minimal injuries regardless of other variables. These thresholds provide actionable insights for disaster preparedness, emphasizing the need to monitor and respond aggressively to high-magnitude and long-path tornadoes.
 
 ## 4. How do fatalities and loss differ across seasons
 
