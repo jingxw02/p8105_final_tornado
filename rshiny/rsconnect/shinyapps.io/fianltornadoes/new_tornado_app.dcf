@@ -1,0 +1,10 @@
+name: new_tornado_app
+title:
+username: fianltornadoes
+account: fianltornadoes
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13532815
+bundleId: 9468961
+url: https://fianltornadoes.shinyapps.io/new_tornado_app/
+version: 1

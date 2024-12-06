@@ -5,14 +5,31 @@ output:
      toc: true
      toc_float: true
 ---
-Welcome to my website.
 
-## About us
+<left>
+<img src="images/p8105_stickers.png" alt="stickers" style="width:30%">  
 
-## EDA
+### Data Science I Final Project
 
-## Model building
+Welcome to our website.
 
-## R shiny
+## Contributor
+Tianci Zhu (tz2659)<br>
+Jingxi Wang (jw4690)<br>
+Avery Wang (xw3038)<br>
+Jianing Chen (jc6422)<br>
+Puyuan Zhang (pz2334)<br> 
+
+## Website Overview
+[**Project Report**](): An overview of project goals, process, data handling, analysis, and findings.  
+
+[**Exploratory Data Analysis**](): Using graphs and statistics to explore and understand tornado patterns and their impacts.
+
+[**Statistical Analysis**](): 
+
+[**Interactive Map**](https://fianltornadoes.shinyapps.io/rshiny/): Interactive Shiny map demonstrating trends in disasters and climate indicators over time and differences across the country. 
+
+[**Screencast**](): Our 2-minute screencast with some tips for using this website.
+
 
 
