@@ -137,6 +137,28 @@ abline(a = 0, b = 1, lty = 2, col = "gray")
 
 The ROC curve visually confirms the model's performance, with the curve substantially above the diagonal line (representing random chance). The area under the curve (AUC = 0.835) further reinforces the logistic regression's capability to classify tornado paths effectively. While sensitivity is strong, specificity should be revisited, perhaps by balancing the dataset or exploring more feature interactions.
 
+```{r, message = FALSE, warning = FALSE}
+library(car)
+
+vif(cv_logistic_model$finalModel)
+
+summary(cv_logistic_model$finalModel)
+```
+
+The variable importance analysis highlights significant predictors:
+
+- Magnitude (mag): Tornado magnitude is the strongest predictor, with higher magnitudes leading to an increased likelihood of long paths.
+
+- Width (wid): Wider tornadoes significantly contribute to predicting long-path events, consistent with their destructive nature.
+
+- Latitude (slat): Tornadoes at higher latitudes tend to have longer paths.
+
+- Longitude (slon): Tornadoes further east also predict longer paths.
+
+- Interaction term (mag:wid): Indicates that the combination of magnitude and width is vital, possibly reflecting compound effects on destruction.
+
+The variance inflation factor (VIF) values are all below the commonly accepted threshold of 5, suggesting no severe multicollinearity among predictors. This ensures model stability and interpretability.
+
 ## 4. How do fatalities and loss differ across seasons
 
 To investigate whether there are significant differences in fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a non-parametric method was used here to compare the medians of loss and fatalities across different seasons
