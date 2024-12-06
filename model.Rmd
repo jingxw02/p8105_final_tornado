@@ -159,6 +159,21 @@ The variable importance analysis highlights significant predictors:
 
 The variance inflation factor (VIF) values are all below the commonly accepted threshold of 5, suggesting no severe multicollinearity among predictors. This ensures model stability and interpretability.
 
+## 3. Does the distribution of tornado widths fit an exponential distribution?
+
+```{r, message = FALSE, warning = FALSE}
+library(MASS)
+library(ggplot2)
+
+tornado_widths <- cleaned$wid[!is.na(cleaned$wid)]
+
+exp_fit <- fitdistr(tornado_widths, "exponential")
+
+cat("MLE Estimated Rate (Lambda):", exp_fit$estimate, "\n")
+```
+
+This analysis examines whether tornado widths follow an exponential distribution by using Maximum Likelihood Estimation (MLE) to estimate the rate parameter (λ). The estimated rate parameter (λ) is 0.0070, indicating the rapid decline in the density of larger tornado widths. The exponential distribution assumes that events (in this case, tornado widths) decrease in frequency exponentially as their magnitude increases. This aligns with the expectation that narrower tornadoes are much more frequent than wider ones.
+
 ## 4. How do fatalities and loss differ across seasons
 
 To investigate whether there are significant differences in fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a non-parametric method was used here to compare the medians of loss and fatalities across different seasons
