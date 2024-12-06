@@ -546,6 +546,25 @@ long-path and short-path tornadoes. This is complemented by high
 sensitivity (0.954) showing that most long-path tornadoes are correctly
 identified, while specificity (0.393) highlights room for improvement in
 minimizing false positives.</p>
+<pre class="r"><code>cv_results &lt;- cv_logistic_model$results
+cv_results</code></pre>
+<pre><code>##   parameter      ROC      Sens      Spec       ROCSD      SensSD     SpecSD
+## 1      none 0.835001 0.9543641 0.3930859 0.006624361 0.004754727 0.01020199</code></pre>
+<pre class="r"><code>roc_curve &lt;- roc(
+  cleaned$long_path_binary,
+  predict(cv_logistic_model, newdata = cleaned, type = &quot;prob&quot;)[, &quot;Yes&quot;]
+)</code></pre>
+<pre><code>## Setting levels: control = No, case = Yes</code></pre>
+<pre><code>## Setting direction: controls &lt; cases</code></pre>
+<pre class="r"><code>plot(roc_curve, main = &quot;ROC Curve with Cross-Validation&quot;, col = &quot;blue&quot;, lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = &quot;gray&quot;)</code></pre>
+<p><img src="model_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>The ROC curve visually confirms the model’s performance, with the
+curve substantially above the diagonal line (representing random
+chance). The area under the curve (AUC = 0.835) further reinforces the
+logistic regression’s capability to classify tornado paths effectively.
+While sensitivity is strong, specificity should be revisited, perhaps by
+balancing the dataset or exploring more feature interactions.</p>
 </div>
 <div id="how-do-fatalities-and-loss-differ-across-seasons"
 class="section level2">
@@ -710,7 +729,7 @@ lm_spec =linear_reg()|&gt;
 final_model=lm(fat ~ mag + inj + loss + len + wid, data = cleaned)
 
 check_model(final_model, check = c(&quot;linearity&quot;, &quot;qq&quot;, &quot;homogeneity&quot;, &quot;outliers&quot;))</code></pre>
-<p><img src="model_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="model_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <div id="diagnostic-report-for-linear-regression-model"
 class="section level3">
 <h3>Diagnostic Report for Linear Regression Model</h3>
@@ -906,7 +925,7 @@ cv_long|&gt;ggplot(aes(x = model, y = rmse)) +
     y = &quot;RMSE&quot;
   ) +
   theme_minimal()</code></pre>
-<p><img src="model_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p><img src="model_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
 <p>It is observed that the better performance of the first model
 <code>model1_mod</code> using cross-validation is slightly better
 compared to the second model <code>model2_mod</code>, with the RMSE

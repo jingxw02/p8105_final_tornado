@@ -123,6 +123,19 @@ cv_logistic_model
 
 The cross-validation step evaluates the model's ability to predict long-path tornadoes. The 10-fold cross-validation process splits the data into training and testing subsets to ensure that the model generalizes well to unseen data. The ROC value of 0.835 indicates that the model has a good discriminative ability to differentiate between long-path and short-path tornadoes. This is complemented by high sensitivity (0.954) showing that most long-path tornadoes are correctly identified, while specificity (0.393) highlights room for improvement in minimizing false positives.
 
+```{r}
+cv_results <- cv_logistic_model$results
+cv_results
+
+roc_curve <- roc(
+  cleaned$long_path_binary,
+  predict(cv_logistic_model, newdata = cleaned, type = "prob")[, "Yes"]
+)
+plot(roc_curve, main = "ROC Curve with Cross-Validation", col = "blue", lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = "gray")
+```
+
+The ROC curve visually confirms the model's performance, with the curve substantially above the diagonal line (representing random chance). The area under the curve (AUC = 0.835) further reinforces the logistic regression's capability to classify tornado paths effectively. While sensitivity is strong, specificity should be revisited, perhaps by balancing the dataset or exploring more feature interactions.
 
 ## 4. How do fatalities and loss differ across seasons
 
