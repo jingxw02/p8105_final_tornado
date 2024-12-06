@@ -12,6 +12,17 @@ navbar:
     - text: "Shiny App"
       href: https://fianltornadoes.shinyapps.io/rshiny/
     - icon: fa-envelope fa-lg
+      menu:
+        - text: "Jianing Chen"
+        - href: mailto:jc6422@cumc.columbia.edu
+        - text: "Jingxi Wang"
+        - href: mailto:jw4690@cumc.columbia.edu
+        - text: "Xikun Wang"
+        - href: mailto:xw3038@cumc.columbia.edu
+        - text: "Puyuan Zhang"
+        - href: mailto:pz2334@cumc.columbia.edu
+        - text: "Tianci Zhu"
+        - href: mailto:tz2659@cumc.columbia.edu
       href: mailto:jc6422@cumc.columbia.edu
     - icon: fa-github fa-lg
       href: https://github.com/jingxw02/p8105_final_tornado
