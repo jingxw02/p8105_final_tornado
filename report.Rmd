@@ -37,7 +37,7 @@ library(see)
 ```
 
 ```{r}
-tornado_data <- read.csv("./actual_tornadoes.csv", na.strings = c("NA", "N/A", " "))
+tornado_data <- read.csv("./data/1950-2023_actual_tornadoes.csv", na.strings = c("NA", "N/A", " "))
 
 cleaned <- tornado_data |>
   filter(yr >= 2000) |>

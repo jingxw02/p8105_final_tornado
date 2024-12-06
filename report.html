@@ -254,7 +254,7 @@ $(document).ready(function () {
   <a href="summary_viz.html">EDA</a>
 </li>
 <li>
-  <a href="data_analysis.html">Statistical Analysis</a>
+  <a href="model.html">Statistical Analysis</a>
 </li>
 <li>
   <a href="https://fianltornadoes.shinyapps.io/rshiny/">Shiny App</a>
@@ -341,7 +341,7 @@ includes a categorical variable season and continuous variables loss and
 fat (fatalities). The test statistic was calculated, and p-values were
 used to assess the significance of the differences (significance
 level=0.05).</p>
-<pre class="r"><code>tornado_data &lt;- read.csv(&quot;./actual_tornadoes.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;N/A&quot;, &quot; &quot;))
+<pre class="r"><code>tornado_data &lt;- read.csv(&quot;./data/1950-2023_actual_tornadoes.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;N/A&quot;, &quot; &quot;))
 
 cleaned &lt;- tornado_data |&gt;
   filter(yr &gt;= 2000) |&gt;
@@ -671,7 +671,7 @@ print(summary_results)</code></pre>
 <pre><code>## # A tibble: 1 × 2
 ##   mean_rmse_model1 mean_rmse_model2
 ##              &lt;dbl&gt;            &lt;dbl&gt;
-## 1            0.712             1.11</code></pre>
+## 1            0.710             1.12</code></pre>
 <pre class="r"><code>cv_long=cv_results |&gt; select(starts_with(&quot;rmse&quot;))|&gt;
   pivot_longer(
     everything(),
