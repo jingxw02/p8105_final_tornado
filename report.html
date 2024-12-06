@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>report.knit</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="report.html">Project Report</a>
+</li>
+<li>
+  <a href="summary_viz.html">EDA</a>
+</li>
+<li>
+  <a href="data_analysis.html">Statistical Analysis</a>
+</li>
+<li>
+  <a href="https://fianltornadoes.shinyapps.io/rshiny/">Shiny App</a>
+</li>
+<li>
+  <a href="mailto:jc6422@cumc.columbia.edu">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/jingxw02/p8105_final_tornado">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+
+</div>
+
+
+<div id="related-works" class="section level1">
+<h1>Related works</h1>
+<p>Our project draws inspiration from the reports provided by NOAA’s
+National Weather Service, which detail the frequency, severity, and
+impacts of tornadoes across the United States. These reports serve as a
+foundational reference for understanding the critical need to analyze
+storm data and its implications for disaster preparedness. Additionally,
+some concepts utilized in this project is the content taught in the
+P8105 class, particularly in the areas of data cleaning, exploratory
+data analysis (EDA), linear regression, cross-validation and rshiny
+dashboards. The integration of these techniques has effectively helped
+us process and analyze large, complex datasets systematically, also
+figure out the patterns of the datasets, and build models for predicting
+tornado impacts.</p>
+</div>
+<div id="initial-question" class="section level1">
+<h1>Initial Question</h1>
+<p>We first want to understand that starting from the year 2000, how
+tornado occurrences in US and their impacts have changed over time, both
+seasonally and annually, and identify patterns in their frequency across
+regions and states. Additionally, we aim to explore the relationships
+between tornado characteristics—such as magnitude, path length, and path
+width—and their impacts, including characteristics such as injuries,
+fatalities, and property loss. Besides, we also try to investigate how
+these impacts vary across seasons and regions and determine the key
+factors that contribute to severe outcomes like fatalities and injuries.
+By analyzing using the visualized and statistical relationships between
+tornado characteristics and corresponding impacts, we can identify
+meaningful patterns that can help offer preparedness strategies.</p>
+<div id="how-do-fatalities-and-loss-differ-across-seasons"
+class="section level2">
+<h2>3. How do fatalities and loss differ across seasons</h2>
+<p>To investigate whether there are significant differences in
+fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a
+non-parametric method was used here to compare the medians of loss and
+fatalities across different seasons</p>
+<div id="hypotheses-kruskal-wallis-test" class="section level3">
+<h3>Hypotheses Kruskal-Wallis Test</h3>
+<p>Hypotheses Kruskal-Wallis Test for Loss Across Seasons</p>
+<ul>
+<li><p>Null Hypothesis (H0): The median loss is the same across all
+seasons.</p></li>
+<li><p>Alternative Hypothesis (H1): At least one season has a
+significantly different median loss.</p></li>
+</ul>
+<p>Hypotheses Kruskal-Wallis Test for fatalities Across Seasons</p>
+<ul>
+<li><p>Null Hypothesis (H0): The median of fataltiies is the same across
+all seasons.</p></li>
+<li><p>Alternative Hypothesis (H1): At least one season has a
+significantly different median fatalities</p></li>
+</ul>
+<p>The Kruskal-Wallis test was applied to the cleaned dataset, which
+includes a categorical variable season and continuous variables loss and
+fat (fatalities). The test statistic was calculated, and p-values were
+used to assess the significance of the differences (significance
+level=0.05).</p>
+<pre class="r"><code>tornado_data &lt;- read.csv(&quot;./actual_tornadoes.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;N/A&quot;, &quot; &quot;))
+
+cleaned &lt;- tornado_data |&gt;
+  filter(yr &gt;= 2000) |&gt;
+  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |&gt;
+  relocate(fc, .after = mag)|&gt;
+  drop_na()
+  
+# Optional
+write.csv(cleaned, &quot;cleaned_df.csv&quot;, row.names = FALSE)</code></pre>
+<pre class="r"><code>cleaned=cleaned |&gt; 
+  mutate(
+    # Create season as a factor based on the month
+    season = factor(case_when(
+      mo %in% c(12, 1, 2) ~ &quot;Winter&quot;,
+      mo %in% c(3, 4, 5) ~ &quot;Spring&quot;,
+      mo %in% c(6, 7, 8) ~ &quot;Summer&quot;,
+      mo %in% c(9, 10, 11) ~ &quot;Fall&quot;
+    ), levels = c(&quot;Winter&quot;, &quot;Spring&quot;, &quot;Summer&quot;, &quot;Fall&quot;)),
+    # Convert mag to a factor
+    mag = as.factor(mag)
+  )
+
+# Kruskal-Wallis test for loss across seasons
+kruskal_loss=kruskal.test(loss ~ season, data = cleaned)
+print(kruskal_loss)</code></pre>
+<pre><code>## 
+##  Kruskal-Wallis rank sum test
+## 
+## data:  loss by season
+## Kruskal-Wallis chi-squared = 1162.5, df = 3, p-value &lt; 2.2e-16</code></pre>
+<pre class="r"><code># test for fatalities across seasons
+kruskal_fatalities=kruskal.test(fat~ season, data = cleaned)
+print(kruskal_fatalities)</code></pre>
+<pre><code>## 
+##  Kruskal-Wallis rank sum test
+## 
+## data:  fat by season
+## Kruskal-Wallis chi-squared = 146.92, df = 3, p-value &lt; 2.2e-16</code></pre>
+<p>The test result shows significant seasonal variations in both
+economic losses and fatalities. For economic losses, the p-value was
+less than 0.05, indicating strong evidence to reject the null hypothesis
+that losses are evenly distributed across all seasons. Similarly, the
+p-value for fatalities was less than 0.05, also providing strong
+evidence to reject the null hypothesis and conclude that fatalities vary
+significantly across seasons. To further identify specific seasonal
+differences, post-hoc test were then utilized. The Dunn’s test with
+Bonferroni adjustment was then conducted</p>
+</div>
+<div id="post-hoc-test-results-for-loss-across-seasons"
+class="section level3">
+<h3>Post-hoc Test Results for Loss Across Seasons</h3>
+<pre class="r"><code># Post-hoc test for loss across seasons
+dunn_loss=dunnTest(loss ~ season, data = cleaned, method = &quot;bonferroni&quot;)
+print(dunn_loss)</code></pre>
+<pre><code>## Dunn (1964) Kruskal-Wallis multiple comparison</code></pre>
+<pre><code>##   p-values adjusted with the Bonferroni method.</code></pre>
+<pre><code>##        Comparison          Z       P.unadj         P.adj
+## 1   Fall - Spring   6.664038  2.664053e-11  1.598432e-10
+## 2   Fall - Summer  20.528670  1.193991e-93  7.163947e-93
+## 3 Spring - Summer  19.318850  3.728658e-83  2.237195e-82
+## 4   Fall - Winter -12.277059  1.202927e-34  7.217560e-34
+## 5 Spring - Winter -20.128608  4.144714e-90  2.486828e-89
+## 6 Summer - Winter -31.691891 2.009520e-220 1.205712e-219</code></pre>
+<p>In the post-hoc Dunn’s test for median based losses, all pairwise
+comparisons between seasons show significant differences as the p values
+for them are much smaller than 0.05. And it is exhibited that winter
+shows significantly higher. Fall has higher losses compared to spring
+and summer, and winter generally experiences the highest median of
+losses compared to all other seasons. Given the significant seasonal
+trends in losses, it is crucial to focus more on Fall and Winter
+tornadoes when addressing economic impacts even if the tornadoes are not
+most frequently occurring in these seasons</p>
+</div>
+<div id="post-hoc-test-results-for-fatalities-across-seasons"
+class="section level3">
+<h3>Post-hoc Test Results for Fatalities Across Seasons</h3>
+<pre class="r"><code># Post-hoc test for injuries across seasons
+dunn_fatalities=dunnTest(fat~ season, data = cleaned, method = &quot;bonferroni&quot;)
+print(dunn_fatalities)</code></pre>
+<pre><code>## Dunn (1964) Kruskal-Wallis multiple comparison</code></pre>
+<pre><code>##   p-values adjusted with the Bonferroni method.</code></pre>
+<pre><code>##        Comparison           Z      P.unadj        P.adj
+## 1   Fall - Spring  -0.5929891 5.531884e-01 1.000000e+00
+## 2   Fall - Summer   5.3279154 9.934636e-08 5.960781e-07
+## 3 Spring - Summer   7.9963062 1.282073e-15 7.692437e-15
+## 4   Fall - Winter  -6.0488587 1.458755e-09 8.752529e-09
+## 5 Spring - Winter  -6.5895148 4.412662e-11 2.647597e-10
+## 6 Summer - Winter -11.4469857 2.434651e-30 1.460791e-29</code></pre>
+<p>Regarding the comparisons of median based fatalities between
+different seasons, the adjusted p value shows the statistically
+significant differences for all except the fall and spring, indicating
+the approximately similar median fatalities between these two seasons.
+Based on the observations of other comparisons,winter season shows
+relatively higher fatalities compare to other seasons, followed by
+summer. Therefore, more preventive measures should be taken during
+Summer and Winter to address the heightened risks of fatalities.</p>
+</div>
+</div>
+<div
+id="how-does-the-magnitude-of-events-predict-the-distribution-of-fatalities"
+class="section level2">
+<h2>4. How does the magnitude of events predict the distribution of
+fatalities?</h2>
+<p>To examine whether there is an association between the variables
+<code>mag</code> (magnitude) and <code>fat</code> (fatalities) in the
+dataset, a Chi-Square test of independence was performed. The Null
+Hypothesis (H0) states that the magnitude of the tornadoes and
+fatalities are independent. And the Alternative Hypothesis (H1) states
+that there is an association between the magnitude of tornado events and
+numbers of fatalities.</p>
+<pre class="r"><code>table_data=table(cleaned$mag, cleaned$fat)
+
+# Perform Chi-Square Test
+chisq.test(table_data)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test
+## 
+## data:  table_data
+## X-squared = 25983, df = 162, p-value &lt; 2.2e-16</code></pre>
+<p>The result shows that the p-value is far below the standard
+significance level (e.g., 0.05), so we reject the null hypothesis,
+indicating that there is a statistically significant association between
+the magnitude of the event and the number of fatalities. This result
+statistically confirms the observations initially identified during the
+exploratory data analysis (EDA), where trends suggested that higher
+magnitudes are likely to result in more fatalities.</p>
+</div>
+<div
+id="model-comparison-on-predicting-fatalities-based-on-event-characteristics."
+class="section level2">
+<h2>5. Model comparison on predicting fatalities based on event
+characteristics.</h2>
+<p>The linear regression model was then developed to analyze the
+relationship between fatalities (fat) as the dependent variable and
+multiple predictors: magnitude (mag), injuries (inj), loss (loss),
+length (len), and width (wid). And diagnostics were conducted to
+evaluate the assumptions of linear regression, including linearity,
+normality, homogeneity of variance, and outliers. The
+<code>check_model()</code> function was used to evaluate four
+assumptions of linear regression model: Linearity, Normality (QQ Plot),
+Homogeneity of Variance (Homoscedasticity) and Influential
+Observations</p>
+<pre class="r"><code># Prepare the model specification
+lm_spec =linear_reg()|&gt;
+  set_mode(&quot;regression&quot;)|&gt;
+  set_engine(&quot;lm&quot;)
+
+final_model=lm(fat ~ mag + inj + loss + len + wid, data = cleaned)
+
+check_model(final_model, check = c(&quot;linearity&quot;, &quot;qq&quot;, &quot;homogeneity&quot;, &quot;outliers&quot;))</code></pre>
+<p><img src="report_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<div id="diagnostic-report-for-linear-regression-model"
+class="section level3">
+<h3>Diagnostic Report for Linear Regression Model</h3>
+<ol style="list-style-type: decimal">
+<li><strong>Linearity</strong>: The residuals display a curved pattern,
+and the residuals do not scatter randomly around the horizontal line at
+zero, indicating that the assumption of linearity is violated.</li>
+<li><strong>Homoscedasticity</strong>: the variance of errors is not
+constant across all levels of fitted values, so it is also violated</li>
+<li><strong>Influential Observations</strong>: Several points,
+particularly those with leverage values exceeding 0.2, are flagged as
+potentially influential, which requires the further investigation.</li>
+<li><strong>Normality check</strong>: The QQ plot demonstrates
+significant deviations from normality at both ends.</li>
+</ol>
+</div>
+<div id="polynomial-regression" class="section level3">
+<h3>Polynomial Regression</h3>
+<p>With the diagnostic observations from the linear regression model, a
+more flexible modeling approach was implemented using polynomial terms
+and interaction effects to better capture the nonlinear relationships
+and reduce the influence of heteroscedasticity and non linearity.</p>
+<p>Model 1 was selected with the following predictors as some of them
+were tested and observed in the previous analysis:</p>
+<ul>
+<li>Formula:
+<code>fat ~ poly(mag, 2) + poly(inj, 2) + poly(loss, 2) + poly(len, 2) + poly(wid, 2)</code>,
+second-order polynomial terms for all predictors (<code>mag</code>,
+<code>inj</code>, <code>loss</code>, <code>len</code>, and
+<code>wid</code>) without interaction terms.</li>
+</ul>
+<pre class="r"><code># Fit the regression model
+model=lm(fat ~ poly(mag, 2) + poly(inj, 2) + poly(loss, 2) + poly(len, 2) + poly(wid, 2), data = cleaned)
+
+# Tidy the model results and print in a neat table
+broom::tidy(model) |&gt; 
+  knitr::kable(digits = 3, caption = &quot;Regression Model Results with Polynomial Terms&quot;)</code></pre>
+<table>
+<caption>Regression Model Results with Polynomial Terms</caption>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.060</td>
+<td align="right">0.004</td>
+<td align="right">13.334</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">poly(mag, 2)1</td>
+<td align="right">8.860</td>
+<td align="right">1.052</td>
+<td align="right">8.422</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">poly(mag, 2)2</td>
+<td align="right">15.400</td>
+<td align="right">0.855</td>
+<td align="right">18.015</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">poly(inj, 2)1</td>
+<td align="right">161.696</td>
+<td align="right">0.858</td>
+<td align="right">188.433</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">poly(inj, 2)2</td>
+<td align="right">-2.946</td>
+<td align="right">0.858</td>
+<td align="right">-3.435</td>
+<td align="right">0.001</td>
+</tr>
+<tr class="even">
+<td align="left">poly(loss, 2)1</td>
+<td align="right">-11.555</td>
+<td align="right">0.780</td>
+<td align="right">-14.815</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">poly(loss, 2)2</td>
+<td align="right">3.483</td>
+<td align="right">0.775</td>
+<td align="right">4.495</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">poly(len, 2)1</td>
+<td align="right">8.696</td>
+<td align="right">1.028</td>
+<td align="right">8.462</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">poly(len, 2)2</td>
+<td align="right">27.108</td>
+<td align="right">0.857</td>
+<td align="right">31.628</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">poly(wid, 2)1</td>
+<td align="right">1.812</td>
+<td align="right">1.029</td>
+<td align="right">1.760</td>
+<td align="right">0.078</td>
+</tr>
+<tr class="odd">
+<td align="left">poly(wid, 2)2</td>
+<td align="right">-1.252</td>
+<td align="right">0.827</td>
+<td align="right">-1.515</td>
+<td align="right">0.130</td>
+</tr>
+</tbody>
+</table>
+<p>The comparison model was used to test if simplifying the model by
+using fewer polynomial terms and focusing on interactions can improve
+generalization and further improve the performance of the prediction. So
+Model 2:</p>
+<ul>
+<li>Formula:
+<code>fat ~  poly(mag, 2) + inj:loss + poly(len, 2) + poly(wid, 2)</code>,
+second-order polynomial terms for mag, len, and wid, as well as an
+interaction term between <code>inj</code> and <code>loss</code>.</li>
+</ul>
+</div>
+<div id="cross-validation" class="section level3">
+<h3>Cross Validation</h3>
+<p>The dataset was split into training and testing sets for
+cross-validation, with each model trained on the training set and
+evaluated on the corresponding test set. Prediction accuracy was
+assessed using the Root Mean Squared Error (RMSE). And the violin plot
+is used to visualize the rmse of using cross-validation</p>
+<pre class="r"><code>cv_df &lt;- crossv_mc(cleaned, 100) |&gt; 
+  mutate(
+    # Convert train and test sets to tibbles
+    train = map(train, as_tibble),
+    test = map(test, as_tibble)
+  )</code></pre>
+<pre class="r"><code># Fit models and calculate metrics
+cv_results=cv_df |&gt; 
+  mutate(
+    # Fit models with polynomial terms
+     model1_mod = map(train, \(df) lm(fat ~ poly(mag, 2) + poly(inj, 2) + poly(loss, 2) + poly(len, 2) + poly(wid, 2), data = df)),
+    model2_mod = map(train, \(df) lm(fat ~ poly(mag, 2) + inj:loss + poly(len, 2) + poly(wid, 2), data = df)),
+   
+  ) |&gt;
+  mutate(
+    # Calculate RMSE for each model on the test sets
+    rmse_model1 = map2_dbl(model1_mod, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_model2 = map2_dbl(model2_mod, test, \(mod, df) rmse(model = mod, data = df))
+  )
+
+# Combine metrics for all models
+summary_results=cv_results |&gt; 
+  summarise(
+
+    mean_rmse_model1 = mean(rmse_model1),
+    mean_rmse_model2 = mean(rmse_model2)
+  )
+
+print(summary_results)</code></pre>
+<pre><code>## # A tibble: 1 × 2
+##   mean_rmse_model1 mean_rmse_model2
+##              &lt;dbl&gt;            &lt;dbl&gt;
+## 1            0.712             1.11</code></pre>
+<pre class="r"><code>cv_long=cv_results |&gt; select(starts_with(&quot;rmse&quot;))|&gt;
+  pivot_longer(
+    everything(),
+    names_to = &quot;model&quot;, 
+    values_to = &quot;rmse&quot;,
+    names_prefix = &quot;rmse_&quot;) |&gt; 
+  mutate(model = fct_inorder(model))
+
+
+cv_long|&gt;ggplot(aes(x = model, y = rmse)) + 
+   geom_violin()+
+  labs(
+    title = &quot;Cross-Validated RMSE for fatality&quot;,
+    x = &quot;Model&quot;,
+    y = &quot;RMSE&quot;
+  ) +
+  theme_minimal()</code></pre>
+<p><img src="report_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>It is observed that the better performance of the first model
+<code>model1_mod</code> using cross-validation is slightly better
+compared to the second model <code>model2_mod</code>, with the RMSE
+increase from about 0.71 to 1.12. And it is probably because the basic
+model captures nuanced nonlinear relationships for every variable
+individually. In contrast, the second model simplifies the treatment of
+<code>inj</code> and <code>loss</code> by using an interaction term
+(<code>inj:loss</code>) instead of capturing their individual nonlinear
+effects. Additionally, <code>model1_mod</code> may perform better if the
+dataset contains sufficient data points to support the added complexity
+of fitting multiple polynomial terms without overfitting.</p>
+</div>
+</div>
+</div>
+<div id="discussion" class="section level1">
+<h1>Discussion</h1>
+<p>The statistical analysis also explores the seasonal variations in
+tornado impacts, and focus on economic losses and fatalities, and some
+other factors related to the tornado. The analysis demonstrated
+significant seasonal differences in both losses and fatalities,
+confirmed through the Kruskal-Wallis test and subsequent Dunn’s post-hoc
+tests. Winter emerged as the season with the highest median losses,
+followed by Fall, while fatalities were also higher in Winter and
+Summer. These findings highlight the need for targeted preventive
+measures in Winter and Summer, particularly for fatalities, and in
+Winter and Fall for economic impacts, even though tornadoes may not be
+the most frequent during these seasons. However, a limitation of this
+analysis is its reliance on the median as a measure of central tendency,
+which may overlook extreme values or variability within the data. But it
+can still gives a general overview of seasonal trends and provide
+insights into typical outcomes</p>
+<p>Then the linear regression with the diagnostic reports, including
+linearity, homoscedasticity, and normality, were implemented to
+understand the predictors of tornado fatalities. Under such
+circumstances, polynomial regression models were adopted to better
+capture nonlinear relationships and reduce violations of assumptions.
+Model 1, which included second-order polynomial terms for all
+predictors, performed slightly better than Model 2, which simplified the
+treatment of injuries and losses by using an interaction term
+(<code>inj:loss</code>). The better performance of Model 1 also suggests
+that capturing nuanced nonlinear relationships for each predictor
+individually sometimes improves predictive accuracy, especially when
+there are sufficient data to support complex model.</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
