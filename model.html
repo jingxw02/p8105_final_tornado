@@ -1004,7 +1004,11 @@ print(summary_results)</code></pre>
 <pre><code>## # A tibble: 1 × 2
 ##   mean_rmse_model1 mean_rmse_model2
 ##              &lt;dbl&gt;            &lt;dbl&gt;
+<<<<<<< HEAD
 ## 1            0.718             1.14</code></pre>
+=======
+## 1            0.726             1.13</code></pre>
+>>>>>>> 2ba55e991f695119d406e13f57ca7e7e700dcd17
 <pre class="r"><code>cv_long=cv_results |&gt; select(starts_with(&quot;rmse&quot;))|&gt;
   pivot_longer(
     everything(),
