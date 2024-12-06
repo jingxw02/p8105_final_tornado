@@ -4,11 +4,11 @@ navbar:
   title: "Home"
   right:
     - text: "Project Report"
-      href: summary_viz.html
+      href: report.html
     - text: "EDA"
       href: summary_viz.html
     - text: "Statistical Analysis"
-      href: data_analysis.html
+      href: model.html
     - text: "Shiny App"
       href: https://fianltornadoes.shinyapps.io/rshiny/
     - icon: fa-envelope fa-lg
