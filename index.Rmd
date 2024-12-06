@@ -25,7 +25,7 @@ Puyuan Zhang (pz2334)<br>
 
 [**Exploratory Data Analysis**](): Using graphs and statistics to explore and understand tornado patterns and their impacts.
 
-[**Statistical Analysis**](): 
+[**Statistical Analysis**]():Applying statistical methods to quantify relationships, test hypotheses, and validate trends in tornado impacts. Read [Statistical Analysis](model.html)
 
 [**Interactive Map**](https://fianltornadoes.shinyapps.io/rshiny/): Interactive Shiny map demonstrating trends in disasters and climate indicators over time and differences across the country. 
 
