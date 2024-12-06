@@ -394,7 +394,7 @@ statistics and p-values were calculated to assess the significance of
 these differences at a 0.05 significance level. This approach allows for
 a robust comparison of median values across seasons, even with
 non-normally distributed data.</p>
-<pre class="r"><code>tornado_data &lt;- read.csv(&quot;./actual_tornadoes.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;N/A&quot;, &quot; &quot;))
+<pre class="r"><code>tornado_data &lt;- read.csv(&quot;./data/1950-2023_actual_tornadoes.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;N/A&quot;, &quot; &quot;))
 
 cleaned &lt;- tornado_data |&gt;
   filter(yr &gt;= 2000) |&gt;
@@ -724,7 +724,7 @@ print(summary_results)</code></pre>
 <pre><code>## # A tibble: 1 × 2
 ##   mean_rmse_model1 mean_rmse_model2
 ##              &lt;dbl&gt;            &lt;dbl&gt;
-## 1            0.722             1.14</code></pre>
+## 1            0.727             1.16</code></pre>
 <pre class="r"><code>cv_long=cv_results |&gt; select(starts_with(&quot;rmse&quot;))|&gt;
   pivot_longer(
     everything(),
