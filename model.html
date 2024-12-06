@@ -490,6 +490,63 @@ preparedness, emphasizing the need to monitor and respond aggressively
 to high-magnitude and long-path tornadoes.</p>
 </div>
 </div>
+<div
+id="how-do-tornado-characteristics-predict-the-occurrence-of-longer-path-tornadoes"
+class="section level2">
+<h2>2. How do tornado characteristics predict the occurrence of
+longer-path tornadoes?</h2>
+<pre class="r"><code>library(pROC)
+library(caret)
+
+set.seed(123)
+
+cleaned$long_path_binary &lt;- factor(ifelse(cleaned$len &gt; quantile(cleaned$len, 0.75), 1, 0),
+                                   levels = c(0, 1), labels = c(&quot;No&quot;, &quot;Yes&quot;))
+
+# Set up Cross-Validation
+
+cv_control &lt;- trainControl(
+  method = &quot;cv&quot;,
+  number = 10, 
+  classProbs = TRUE, 
+  summaryFunction = twoClassSummary
+)
+
+# Train Logistic Regression Model with Cross-Validation
+
+cv_logistic_model &lt;- train(
+  long_path_binary ~ slat + slon + mag * wid,
+  data = cleaned,
+  method = &quot;glm&quot;,
+  family = binomial(),
+  metric = &quot;ROC&quot;, 
+  trControl = cv_control
+)
+
+cv_logistic_model</code></pre>
+<pre><code>## Generalized Linear Model 
+## 
+## 29507 samples
+##     4 predictor
+##     2 classes: &#39;No&#39;, &#39;Yes&#39; 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (10 fold) 
+## Summary of sample sizes: 26556, 26557, 26556, 26557, 26556, 26556, ... 
+## Resampling results:
+## 
+##   ROC       Sens       Spec     
+##   0.835001  0.9543641  0.3930859</code></pre>
+<p>The cross-validation step evaluates the model’s ability to predict
+long-path tornadoes. The 10-fold cross-validation process splits the
+data into training and testing subsets to ensure that the model
+generalizes well to unseen data. The ROC value of 0.835 indicates that
+the model has a good discriminative ability to differentiate between
+long-path and short-path tornadoes. This is complemented by high
+sensitivity (0.954) showing that most long-path tornadoes are correctly
+identified, while specificity (0.393) highlights room for improvement in
+minimizing false positives.</p>
+</div>
 <div id="how-do-fatalities-and-loss-differ-across-seasons"
 class="section level2">
 <h2>4. How do fatalities and loss differ across seasons</h2>
@@ -653,7 +710,7 @@ lm_spec =linear_reg()|&gt;
 final_model=lm(fat ~ mag + inj + loss + len + wid, data = cleaned)
 
 check_model(final_model, check = c(&quot;linearity&quot;, &quot;qq&quot;, &quot;homogeneity&quot;, &quot;outliers&quot;))</code></pre>
-<p><img src="model_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="model_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <div id="diagnostic-report-for-linear-regression-model"
 class="section level3">
 <h3>Diagnostic Report for Linear Regression Model</h3>
@@ -831,7 +888,7 @@ print(summary_results)</code></pre>
 <pre><code>## # A tibble: 1 × 2
 ##   mean_rmse_model1 mean_rmse_model2
 ##              &lt;dbl&gt;            &lt;dbl&gt;
-## 1            0.706             1.13</code></pre>
+## 1            0.718             1.14</code></pre>
 <pre class="r"><code>cv_long=cv_results |&gt; select(starts_with(&quot;rmse&quot;))|&gt;
   pivot_longer(
     everything(),
@@ -849,7 +906,7 @@ cv_long|&gt;ggplot(aes(x = model, y = rmse)) +
     y = &quot;RMSE&quot;
   ) +
   theme_minimal()</code></pre>
-<p><img src="model_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p><img src="model_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <p>It is observed that the better performance of the first model
 <code>model1_mod</code> using cross-validation is slightly better
 compared to the second model <code>model2_mod</code>, with the RMSE
