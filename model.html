@@ -13,7 +13,7 @@
 
 <title>Model Building</title>
 
-<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
@@ -339,11 +339,35 @@ div.tocify {
 <li>
   <a href="https://fianltornadoes.shinyapps.io/rshiny/">Shiny App</a>
 </li>
-<li>
-  <a href="mailto:jc6422@cumc.columbia.edu">
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     <span class="fa fa-envelope fa-lg"></span>
      
+     
+    <span class="caret"></span>
   </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Jianing Chen</li>
+    <li>
+      <a href="mailto:jc6422@cumc.columbia.edu"></a>
+    </li>
+    <li class="dropdown-header">Jingxi Wang</li>
+    <li>
+      <a href="mailto:jw4690@cumc.columbia.edu"></a>
+    </li>
+    <li class="dropdown-header">Xikun Wang</li>
+    <li>
+      <a href="mailto:xw3038@cumc.columbia.edu"></a>
+    </li>
+    <li class="dropdown-header">Puyuan Zhang</li>
+    <li>
+      <a href="mailto:pz2334@cumc.columbia.edu"></a>
+    </li>
+    <li class="dropdown-header">Tianci Zhu</li>
+    <li>
+      <a href="mailto:tz2659@cumc.columbia.edu"></a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="https://github.com/jingxw02/p8105_final_tornado">
@@ -373,9 +397,47 @@ div.tocify {
 </div>
 
 
+<pre class="r"><code>tornado_data &lt;- read.csv(&quot;./data/1950-2023_actual_tornadoes.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;N/A&quot;, &quot; &quot;))
+
+cleaned &lt;- tornado_data |&gt;
+  filter(yr &gt;= 2000) |&gt;
+  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |&gt;
+  relocate(fc, .after = mag)|&gt;
+  drop_na()
+  
+
+write.csv(cleaned, &quot;cleaned_df.csv&quot;, row.names = FALSE)</code></pre>
+<div
+id="what-are-the-key-factors-that-contribute-to-the-number-of-injuries-caused-by-tornadoes"
+class="section level2">
+<h2>1. What are the key factors that contribute to the number of
+injuries caused by tornadoes?</h2>
+<div id="pruning" class="section level5">
+<h5>1. Pruning</h5>
+<pre class="r"><code># Pruning
+best_cp &lt;- tree_model$cptable[which.min(tree_model$cptable[, &quot;xerror&quot;]), &quot;CP&quot;]
+
+
+pruned_tree &lt;- prune(tree_model, cp = best_cp)
+
+rpart.plot(pruned_tree, type = 3, extra = 101, fallen.leaves = TRUE)</code></pre>
+<p><img src="model_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>The pruned decision tree identifies magnitude (<code>mag</code>) as
+the primary factor influencing tornado-related injuries. Tornadoes with
+<code>mag</code> &lt; 4 predict minimal injuries, averaging 0.2 injuries
+in most cases, indicating that low-magnitude tornadoes pose minimal
+risk. For tornadoes with <code>mag</code> &gt;= 4, injuries increase
+substantially, with additional splits showing that long paths
+(<code>len</code> &gt;= 75 miles) and high property loss
+(<code>loss</code> &gt;= 23) are associated with severe injury outcomes.
+This hierarchy underscores the dominant role of magnitude, with path
+length and property loss acting as secondary risk factors in extreme
+scenarios.</p>
+</div>
+</div>
 <div id="how-do-fatalities-and-loss-differ-across-seasons"
 class="section level2">
-<h2>3. How do fatalities and loss differ across seasons</h2>
+<h2>4. How do fatalities and loss differ across seasons</h2>
 <p>To investigate whether there are significant differences in
 fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a
 non-parametric method was used here to compare the medians of loss and
@@ -394,16 +456,6 @@ statistics and p-values were calculated to assess the significance of
 these differences at a 0.05 significance level. This approach allows for
 a robust comparison of median values across seasons, even with
 non-normally distributed data.</p>
-<pre class="r"><code>tornado_data &lt;- read.csv(&quot;./data/1950-2023_actual_tornadoes.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;N/A&quot;, &quot; &quot;))
-
-cleaned &lt;- tornado_data |&gt;
-  filter(yr &gt;= 2000) |&gt;
-  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |&gt;
-  relocate(fc, .after = mag)|&gt;
-  drop_na()
-  
-# Optional
-write.csv(cleaned, &quot;cleaned_df.csv&quot;, row.names = FALSE)</code></pre>
 <pre class="r"><code>cleaned=cleaned |&gt; 
   mutate(
     # Create season as a factor based on the month
@@ -497,7 +549,7 @@ Summer and Winter to address the heightened risks of fatalities.</p>
 <div
 id="how-does-the-magnitude-of-events-predict-the-distribution-of-fatalities"
 class="section level2">
-<h2>4. How does the magnitude of events predict the distribution of
+<h2>5. How does the magnitude of events predict the distribution of
 fatalities?</h2>
 <p>To examine whether there is an association between the variables
 <code>mag</code> (magnitude) and <code>fat</code> (fatalities) in the
@@ -526,7 +578,7 @@ magnitudes are likely to result in more fatalities.</p>
 <div
 id="model-comparison-on-predicting-fatalities-based-on-event-characteristics."
 class="section level2">
-<h2>5. Model comparison on predicting fatalities based on event
+<h2>6. Model comparison on predicting fatalities based on event
 characteristics.</h2>
 <p>The linear regression model was then developed to analyze the
 relationship between fatalities (fat) as the dependent variable and
@@ -546,7 +598,7 @@ lm_spec =linear_reg()|&gt;
 final_model=lm(fat ~ mag + inj + loss + len + wid, data = cleaned)
 
 check_model(final_model, check = c(&quot;linearity&quot;, &quot;qq&quot;, &quot;homogeneity&quot;, &quot;outliers&quot;))</code></pre>
-<p><img src="model_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="model_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <div id="diagnostic-report-for-linear-regression-model"
 class="section level3">
 <h3>Diagnostic Report for Linear Regression Model</h3>
@@ -724,7 +776,7 @@ print(summary_results)</code></pre>
 <pre><code>## # A tibble: 1 × 2
 ##   mean_rmse_model1 mean_rmse_model2
 ##              &lt;dbl&gt;            &lt;dbl&gt;
-## 1            0.727             1.16</code></pre>
+## 1            0.711             1.11</code></pre>
 <pre class="r"><code>cv_long=cv_results |&gt; select(starts_with(&quot;rmse&quot;))|&gt;
   pivot_longer(
     everything(),
@@ -742,7 +794,7 @@ cv_long|&gt;ggplot(aes(x = model, y = rmse)) +
     y = &quot;RMSE&quot;
   ) +
   theme_minimal()</code></pre>
-<p><img src="model_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="model_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <p>It is observed that the better performance of the first model
 <code>model1_mod</code> using cross-validation is slightly better
 compared to the second model <code>model2_mod</code>, with the RMSE

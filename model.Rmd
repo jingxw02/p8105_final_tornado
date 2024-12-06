@@ -6,7 +6,49 @@ output:
     toc_float: true
     code_folding: hide
 ---
-## 3. How do fatalities and loss differ across seasons
+
+```{r, include = FALSE, message = FALSE, warning = FALSE}
+library(tidyverse)
+```
+
+```{r}
+tornado_data <- read.csv("./data/1950-2023_actual_tornadoes.csv", na.strings = c("NA", "N/A", " "))
+
+cleaned <- tornado_data |>
+  filter(yr >= 2000) |>
+  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |>
+  relocate(fc, .after = mag)|>
+  drop_na()
+  
+
+write.csv(cleaned, "cleaned_df.csv", row.names = FALSE)
+```
+
+## 1. What are the key factors that contribute to the number of injuries caused by tornadoes?
+
+```{r, include = FALSE, message = FALSE, warning = FALSE}
+library(rpart)
+library(rpart.plot)
+library(caret)
+
+tree_model <- rpart(inj ~ mag + wid + len + loss, data = cleaned, method = "anova")
+```
+
+##### 1. Pruning
+
+```{r}
+# Pruning
+best_cp <- tree_model$cptable[which.min(tree_model$cptable[, "xerror"]), "CP"]
+
+
+pruned_tree <- prune(tree_model, cp = best_cp)
+
+rpart.plot(pruned_tree, type = 3, extra = 101, fallen.leaves = TRUE)
+```
+
+The pruned decision tree identifies magnitude (`mag`) as the primary factor influencing tornado-related injuries. Tornadoes with `mag` < 4 predict minimal injuries, averaging 0.2 injuries in most cases, indicating that low-magnitude tornadoes pose minimal risk. For tornadoes with `mag` >= 4, injuries increase substantially, with additional splits showing that long paths (`len` >= 75 miles) and high property loss (`loss` >= 23) are associated with severe injury outcomes. This hierarchy underscores the dominant role of magnitude, with path length and property loss acting as secondary risk factors in extreme scenarios.
+
+## 4. How do fatalities and loss differ across seasons
 
 To investigate whether there are significant differences in fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a non-parametric method was used here to compare the medians of loss and fatalities across different seasons
 
@@ -23,19 +65,6 @@ library(FSA)
 library(tidymodels)
 library(performance)
 library(see)
-```
-
-```{r}
-tornado_data <- read.csv("./data/1950-2023_actual_tornadoes.csv", na.strings = c("NA", "N/A", " "))
-
-cleaned <- tornado_data |>
-  filter(yr >= 2000) |>
-  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |>
-  relocate(fc, .after = mag)|>
-  drop_na()
-  
-# Optional
-write.csv(cleaned, "cleaned_df.csv", row.names = FALSE)
 ```
 
 ```{r}
@@ -87,7 +116,7 @@ print(dunn_fatalities)
 
 Regarding the comparisons of median based fatalities between different seasons, the adjusted p value shows the statistically significant differences for all except the fall and spring, indicating the approximately similar median fatalities between these two seasons. Based on the observations of other comparisons,winter season shows relatively higher fatalities compare to other seasons, followed by summer. Therefore, more preventive measures should be taken during Summer and Winter to address the heightened risks of fatalities.
 
-## 4. How does the magnitude of events predict the distribution of fatalities?
+## 5. How does the magnitude of events predict the distribution of fatalities?
 
 To examine whether there is an association between the variables `mag` (magnitude) and `fat` (fatalities) in the dataset, a Chi-Square test of independence was performed. The Null Hypothesis (H0) states that the magnitude of the tornadoes and fatalities are independent. And the Alternative Hypothesis (H1) states that there is an association between the magnitude of tornado events and numbers of fatalities.
 
@@ -100,7 +129,7 @@ chisq.test(table_data)
 
 The result shows that the p-value is far below the standard significance level (e.g., 0.05), so we reject the null hypothesis, indicating that there is a statistically significant association between the magnitude of the event and the number of fatalities. This result statistically confirms the observations initially identified during the exploratory data analysis (EDA), where trends suggested that higher magnitudes are likely to result in more fatalities.
 
-## 5. Model comparison on predicting fatalities based on event characteristics.
+## 6. Model comparison on predicting fatalities based on event characteristics.
 
 The linear regression model was then developed to analyze the relationship between fatalities (fat) as the dependent variable and multiple predictors: magnitude (mag), injuries (inj), loss (loss), length (len), and width (wid). And diagnostics were conducted to evaluate the assumptions of linear regression, including linearity, normality, homogeneity of variance, and outliers. The `check_model()` function was used to evaluate four assumptions of linear regression model: Linearity, Normality (QQ Plot), Homogeneity of Variance (Homoscedasticity) and Influential Observations
 
