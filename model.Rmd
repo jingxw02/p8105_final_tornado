@@ -1,0 +1,213 @@
+---
+title: "Model Building"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+---
+## 3. How do fatalities and loss differ across seasons
+
+To investigate whether there are significant differences in fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a non-parametric method was used here to compare the medians of loss and fatalities across different seasons
+
+### Hypotheses Kruskal-Wallis Test
+To evaluate the seasonal differences in tornado impacts, Kruskal-Wallis tests were conducted for both loss and fatalities across seasons. The null hypothesis for each test is that the median values of loss and fatalities are the same across all seasons, while the alternative hypothesis states that at least one season has a significantly different median. Using the cleaned dataset, which includes the categorical variable `season` and the continuous variables `loss` and `fat` (fatalities), the test statistics and p-values were calculated to assess the significance of these differences at a 0.05 significance level. This approach allows for a robust comparison of median values across seasons, even with non-normally distributed data.
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(plotly)
+library(modelr)
+library(purrr)
+library(FSA)
+library(tidymodels)
+library(performance)
+library(see)
+```
+
+```{r}
+tornado_data <- read.csv("./actual_tornadoes.csv", na.strings = c("NA", "N/A", " "))
+
+cleaned <- tornado_data |>
+  filter(yr >= 2000) |>
+  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |>
+  relocate(fc, .after = mag)|>
+  drop_na()
+  
+# Optional
+write.csv(cleaned, "cleaned_df.csv", row.names = FALSE)
+```
+
+```{r}
+cleaned=cleaned |> 
+  mutate(
+    # Create season as a factor based on the month
+    season = factor(case_when(
+      mo %in% c(12, 1, 2) ~ "Winter",
+      mo %in% c(3, 4, 5) ~ "Spring",
+      mo %in% c(6, 7, 8) ~ "Summer",
+      mo %in% c(9, 10, 11) ~ "Fall"
+    ), levels = c("Winter", "Spring", "Summer", "Fall")),
+    # Convert mag to a factor
+    mag = as.factor(mag)
+  )
+
+# Kruskal-Wallis test for loss across seasons
+kruskal_loss=kruskal.test(loss ~ season, data = cleaned)
+print(kruskal_loss)
+
+# test for fatalities across seasons
+kruskal_fatalities=kruskal.test(fat~ season, data = cleaned)
+print(kruskal_fatalities)
+```
+
+The test result shows significant seasonal variations in both economic losses and fatalities. For economic losses, the p-value was less than 0.05, indicating strong evidence to reject the null hypothesis that losses are evenly distributed across all seasons. Similarly, the p-value for fatalities was less than 0.05, also providing strong evidence to reject the null hypothesis and conclude that fatalities vary significantly across seasons.
+
+To further identify specific seasonal differences, post-hoc test were then utilized. The Dunn’s test with Bonferroni adjustment was then conducted
+
+### Post-hoc Test Results for Loss Across Seasons
+
+```{r}
+
+# Post-hoc test for loss across seasons
+dunn_loss=dunnTest(loss ~ season, data = cleaned, method = "bonferroni")
+print(dunn_loss)
+
+```
+
+In the post-hoc Dunn's test for median based losses, all pairwise comparisons between seasons show significant differences as the p values for them are much smaller than 0.05. And it is exhibited that winter shows significantly higher. Fall has higher losses compared to spring and summer, and winter generally experiences the highest median of losses compared to all other seasons. Given the significant seasonal trends in losses, it is crucial to focus more on Fall and Winter tornadoes when addressing economic impacts even if the tornadoes are not most frequently occurring in these seasons
+
+### Post-hoc Test Results for Fatalities Across Seasons
+
+```{r}
+# Post-hoc test for injuries across seasons
+dunn_fatalities=dunnTest(fat~ season, data = cleaned, method = "bonferroni")
+print(dunn_fatalities)
+```
+
+Regarding the comparisons of median based fatalities between different seasons, the adjusted p value shows the statistically significant differences for all except the fall and spring, indicating the approximately similar median fatalities between these two seasons. Based on the observations of other comparisons,winter season shows relatively higher fatalities compare to other seasons, followed by summer. Therefore, more preventive measures should be taken during Summer and Winter to address the heightened risks of fatalities.
+
+## 4. How does the magnitude of events predict the distribution of fatalities?
+
+To examine whether there is an association between the variables `mag` (magnitude) and `fat` (fatalities) in the dataset, a Chi-Square test of independence was performed. The Null Hypothesis (H0) states that the magnitude of the tornadoes and fatalities are independent. And the Alternative Hypothesis (H1) states that there is an association between the magnitude of tornado events and numbers of fatalities.
+
+```{r warning=FALSE}
+table_data=table(cleaned$mag, cleaned$fat)
+
+# Perform Chi-Square Test
+chisq.test(table_data)
+```
+
+The result shows that the p-value is far below the standard significance level (e.g., 0.05), so we reject the null hypothesis, indicating that there is a statistically significant association between the magnitude of the event and the number of fatalities. This result statistically confirms the observations initially identified during the exploratory data analysis (EDA), where trends suggested that higher magnitudes are likely to result in more fatalities.
+
+## 5. Model comparison on predicting fatalities based on event characteristics.
+
+The linear regression model was then developed to analyze the relationship between fatalities (fat) as the dependent variable and multiple predictors: magnitude (mag), injuries (inj), loss (loss), length (len), and width (wid). And diagnostics were conducted to evaluate the assumptions of linear regression, including linearity, normality, homogeneity of variance, and outliers. The `check_model()` function was used to evaluate four assumptions of linear regression model: Linearity, Normality (QQ Plot), Homogeneity of Variance (Homoscedasticity) and Influential Observations
+
+```{r}
+
+
+# Prepare the model specification
+lm_spec =linear_reg()|>
+  set_mode("regression")|>
+  set_engine("lm")
+
+final_model=lm(fat ~ mag + inj + loss + len + wid, data = cleaned)
+
+check_model(final_model, check = c("linearity", "qq", "homogeneity", "outliers"))
+
+```
+
+### Diagnostic Report for Linear Regression Model
+
+1.  **Linearity**: The residuals display a curved pattern, and the residuals do not scatter randomly around the horizontal line at zero, indicating that the assumption of linearity is violated.
+2.  **Homoscedasticity**: the variance of errors is not constant across all levels of fitted values, so it is also violated
+3.  **Influential Observations**: Several points, particularly those with leverage values exceeding 0.2, are flagged as potentially influential, which requires the further investigation.
+4.  **Normality check**: The QQ plot demonstrates significant deviations from normality at both ends.
+
+### Polynomial Regression
+
+With the diagnostic observations from the linear regression model, a more flexible modeling approach was implemented using polynomial terms and interaction effects to better capture the nonlinear relationships and reduce the influence of heteroscedasticity and non linearity.
+
+Model 1 was selected with the following predictors as some of them were tested and observed in the previous analysis:
+
+-   Formula: `fat ~ poly(mag, 2) + poly(inj, 2) + poly(loss, 2) + poly(len, 2) + poly(wid, 2)`, second-order polynomial terms for all predictors (mag, inj, loss, len, and wid) without interaction terms.
+
+```{r}
+# Fit the regression model
+model=lm(fat ~ poly(mag, 2) + poly(inj, 2) + poly(loss, 2) + poly(len, 2) + poly(wid, 2), data = cleaned)
+
+# Tidy the model results and print in a neat table
+broom::tidy(model) |> 
+  knitr::kable(digits = 3, caption = "Regression Model Results with Polynomial Terms")
+
+```
+
+The comparison model was used to test if simplifying the model by using fewer polynomial terms and focusing on interactions can improve generalization and further improve the performance of the prediction. So Model 2:
+
+-   Formula: `fat ~  poly(mag, 2) + inj:loss + poly(len, 2) + poly(wid, 2)`, second-order polynomial terms for mag, len, and wid, as well as an interaction term between `inj` and `loss`.
+
+### Cross Validation
+
+The dataset was split into training and testing sets for cross-validation, with each model trained on the training set and evaluated on the corresponding test set. Prediction accuracy was assessed using the Root Mean Squared Error (RMSE). And the violin plot is used to visualize the rmse of using cross-validation
+
+```{r}
+
+
+cv_df <- crossv_mc(cleaned, 100) |> 
+  mutate(
+    # Convert train and test sets to tibbles
+    train = map(train, as_tibble),
+    test = map(test, as_tibble)
+  )
+
+```
+
+```{r}
+# Fit models and calculate metrics
+cv_results=cv_df |> 
+  mutate(
+    # Fit models with polynomial terms
+     model1_mod = map(train, \(df) lm(fat ~ poly(mag, 2) + poly(inj, 2) + poly(loss, 2) + poly(len, 2) + poly(wid, 2), data = df)),
+    model2_mod = map(train, \(df) lm(fat ~ poly(mag, 2) + inj:loss + poly(len, 2) + poly(wid, 2), data = df)),
+   
+  ) |>
+  mutate(
+    # Calculate RMSE for each model on the test sets
+    rmse_model1 = map2_dbl(model1_mod, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_model2 = map2_dbl(model2_mod, test, \(mod, df) rmse(model = mod, data = df))
+  )
+
+# Combine metrics for all models
+summary_results=cv_results |> 
+  summarise(
+
+    mean_rmse_model1 = mean(rmse_model1),
+    mean_rmse_model2 = mean(rmse_model2)
+  )
+
+print(summary_results)
+
+```
+
+```{r}
+cv_long=cv_results |> select(starts_with("rmse"))|>
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse",
+    names_prefix = "rmse_") |> 
+  mutate(model = fct_inorder(model))
+
+
+cv_long|>ggplot(aes(x = model, y = rmse)) + 
+   geom_violin()+
+  labs(
+    title = "Cross-Validated RMSE for fatality",
+    x = "Model",
+    y = "RMSE"
+  ) +
+  theme_minimal()
+```
+
+It is observed that the better performance of the first model `model1_mod` using cross-validation is slightly better compared to the second model `model2_mod`, with the RMSE increase from about 0.71 to 1.12.
