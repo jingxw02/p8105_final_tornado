@@ -5,7 +5,11 @@ navbar:
   right:
     - text: "Project Report"
       href: report.html
+    - text: "Data Description"
+      href: data_description.html
     - text: "EDA"
+      href: eda.html
+    - text: "summary_viz"
       href: summary_viz.html
     - text: "Statistical Analysis"
       href: model.html
