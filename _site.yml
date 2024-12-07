@@ -3,8 +3,6 @@ output_dir: "."
 navbar:
   title: "Home"
   right:
-    - text: "Project Report"
-      href: report.html
     - text: "Data Description"
       href: data_description.html
     - text: "EDA"
@@ -13,6 +11,8 @@ navbar:
       href: model.html
     - text: "Interactive map"
       href: https://fianltornadoes.shinyapps.io/rshiny/
+    - text: "Project Report"
+      href: report.html
     - icon: fa-envelope fa-lg
       menu:
         - text: "Jianing Chen"

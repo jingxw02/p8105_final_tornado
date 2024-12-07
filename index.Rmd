@@ -27,13 +27,13 @@ Explore each section by clicking on the titles to dive deeper into the content. 
 
 [**Data Description**](data_description.html): A detailed description of the data content.
 
-[**Project Report**](report.html): An overview of project goals, process, data handling, analysis, and findings.
-
 [**Exploratory Data Analysis**](EDA.html): Using graphs and statistics to explore and understand tornado patterns and their impacts.
 
 [**Statistical Analysis**](model.html):Applying statistical methods to quantify relationships, test hypotheses, and validate trends in tornado impacts.
 
 [**Interactive Map**](https://fianltornadoes.shinyapps.io/rshiny/): Interactive Shiny map demonstrating trends in disasters and climate indicators over time and differences across the country. 
+
+[**Project Report**](report.html): An overview of project goals, process, data handling, analysis, and findings.
 
 [**Screencast**](): Our 2-minute screencast with some tips for using this website.
 
