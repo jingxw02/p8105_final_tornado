@@ -1,6 +1,5 @@
 ---
 title: "Data Description"
-author: "Tianci Zhu"
 output: html_document
 ---
 
