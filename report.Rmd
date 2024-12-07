@@ -10,6 +10,7 @@ output:
 ```{r, include = FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(plotly)
+library(dplyr)
 ```
 
 ```{r}
@@ -17,7 +18,7 @@ tornado_data <- read.csv("./data/1950-2023_actual_tornadoes.csv", na.strings = c
 
 cleaned <- tornado_data |>
   filter(yr >= 2000) |>
-  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |>
+  dplyr::select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |>
   relocate(fc, .after = mag)|>
   drop_na()
 ```
@@ -325,7 +326,7 @@ tree_model <- rpart(inj ~ mag + wid + len + loss, data = cleaned, method = "anov
 best_cp <- tree_model$cptable[which.min(tree_model$cptable[, "xerror"]), "CP"]
 
 
-pruned_tree <- prune(tree_model, cp = best_cp)
+pruned_tree <- rpart::prune(tree_model, cp = best_cp)
 rpart.plot(pruned_tree, type = 3, extra = 101, fallen.leaves = TRUE)
 ```
 

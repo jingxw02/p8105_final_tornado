@@ -366,7 +366,7 @@ print(summary_results)
 ```
 
 ```{r}
-cv_long=cv_results |> select(starts_with("rmse"))|>
+cv_long=cv_results |> dplyr::select(starts_with("rmse"))|>
   pivot_longer(
     everything(),
     names_to = "model", 

@@ -3,7 +3,6 @@ title: "data clean & EDA"
 output: 
   github_document:
     html_preview: false
-    always_allow_html: true
 ---
 
 ## Clean data
