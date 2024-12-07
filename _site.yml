@@ -8,9 +8,7 @@ navbar:
     - text: "Data Description"
       href: data_description.html
     - text: "EDA"
-      href: eda.html
-    - text: "summary_viz"
-      href: summary_viz.html
+      href: EDA.html
     - text: "Statistical Analysis"
       href: model.html
     - text: "Shiny App"
