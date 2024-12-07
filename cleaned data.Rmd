@@ -1,15 +1,7 @@
 ---
 title: "data clean & EDA"
-output: 
-  github_document:
-    html_preview: false
-    always_allow_html: true
+output: html_document
 ---
-
-```{r}
-webshot::install_phantomjs()
-```
-
 ## Clean data
 ```{r setup, include=FALSE}
 library(dplyr)
