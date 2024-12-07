@@ -13,7 +13,7 @@ library(tidyverse)
 library(plotly)
 ```
 
-## Clean data
+# Clean data
 ```{r}
 tornado_data <- read.csv("./data/1950-2023_actual_tornadoes.csv", na.strings = c("NA", "N/A", " "))
 
@@ -54,11 +54,11 @@ skimr::skim(cleaned)
 - **Data completeness**: The cleaned dataset is complete, with no missing values in any variable, enabling robust exploratory analysis.
 
 
-### EDA
+# EDA
 
 ## Tornado Distribution
 
-Annual trend of tornadoes from 2000 to 2023
+### Annual trend of tornadoes from 2000 to 2023
 
 ```{r}
 annual_trend = cleaned %>%
@@ -77,7 +77,7 @@ ggplotly(annual_plot)
 
 Based on this plot, we found that there is no obvious trend according to years. There are fewer tornadoes around 2014 and there are higher tornadoes occurrence around 2004.
 
-Monthly Distribution of Tornadoes
+### Monthly Distribution of Tornadoes
 
 ```{r}
 monthly_distribution = cleaned %>%
@@ -96,7 +96,7 @@ ggplotly(monthly_plot)
 
 This monthly distribution of tornadoes is unimodal and slightly right-skewed, which concentrated within the range of April to June and has a peak in May.
 
-Seasonal Distribution of Tornadoes
+### Seasonal Distribution of Tornadoes
 
 ```{r}
 seasonal_distribution = cleaned %>%
@@ -126,7 +126,7 @@ ggplotly(seasonal_plot)
 
 From this histogram, Spring has more tornado occurrences which is more than 10000 tornadoes and winter is the least active season which is around 2900 tornadoes. The activity of tornado occurrences is decreasing seasonally.
 
-What is the total number of tornadoes for each state?
+### What is the total number of tornadoes for each state?
 
 ```{r}
 state_tornado_count_map <- cleaned |>
@@ -157,7 +157,7 @@ state_tornado_count_map
 
 ## Tornado Impact
 
-Relationship between tornado magnitude and its impact on injuries, fatalities and proporty loss.
+### Relationship between tornado magnitude and its impact on injuries, fatalities and proporty loss.
 
 ```{r}
 impact_plot = cleaned %>%
@@ -189,7 +189,7 @@ ggplotly(impact_plot)
 
 - By these three box plots, we can observe that the stronger tornadoes (magnitude 4-5) are associated with exponentially greater impact on fatalities, injuries and property loss. While the lower magnitude tornadoes (magnitude 0-2) are generally less impactful, the significant outliers at higher magnitudes indicates the potential for catastrophic events. These findings highlight the importance of preparedness and mitigation measures for communities in areas prone to high-magnitude tornadoes, as they pose the most severe risks.
 
-Association between tornadoes magnitude with "path_length" and "path_width"
+### Association between tornadoes magnitude with "path_length" and "path_width"
 
 ```{r}
 impact_plot2 = cleaned %>%
@@ -220,7 +220,7 @@ ggplotly(impact_plot2)
 
 - The outliers are more common and extreme at higher magnitudes, which reflects the rare but catastrophic tornadoes that occur at these levels.
 
-Which states have experienced the highest cumulative property losses due to tornadoes?
+### Which states have experienced the highest cumulative property losses due to tornadoes?
 
 ```{r}
 # States with highest average property loss per tornado
@@ -241,7 +241,7 @@ state_property_loss
 - **Louisiana (LA)**, **Arkansas (AR)**, and **Texas (TX)** report moderate losses between **0.5 and 1 million dollars**.
 - The variability suggests that factors like infrastructure and tornado intensity contribute to these differences.
 
-What is the relationship between tornado path length, path width, and property loss?
+### What is the relationship between tornado path length, path width, and property loss?
 
 ```{r}
 # Correlation between path length, width, and property loss
@@ -259,7 +259,7 @@ corr
 - Property losses are generally concentrated below **$500 million**, but a few events exceed **$1 billion**.
 - Higher magnitude tornadoes (indicated by warmer colors such as yellow) are associated with larger property losses and damages.
 
-What is the total property loss for each state?
+### What is the total property loss for each state?
 
 ```{r}
 state_loss_map <- cleaned |>
