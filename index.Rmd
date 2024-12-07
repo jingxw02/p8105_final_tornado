@@ -21,6 +21,9 @@ Jianing Chen (jc6422)<br>
 Puyuan Zhang (pz2334)<br> 
 
 ## Website Overview
+
+[**Data Description**](): A detailed description of the data content. Read [Data Description](data_description.html)
+
 [**Project Report**](): An overview of project goals, process, data handling, analysis, and findings.Read [Project Report](report.html)
 
 [**Exploratory Data Analysis**](): Using graphs and statistics to explore and understand tornado patterns and their impacts.

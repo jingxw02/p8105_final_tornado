@@ -1,6 +1,5 @@
 ---
 title: "data clean & EDA"
-author: "Tianci Zhu"
 output: 
   github_document:
     html_preview: false
