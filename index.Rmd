@@ -1,17 +1,19 @@
 ---
-title: "Tornado distribution yaml"
+title: "Twister Insights: Unraveling Tornado Patterns and Impacts"
 output:
    html_document:
      toc: true
      toc_float: true
 ---
-
-<left>
-<img src="images/p8105_stickers.png" alt="stickers" style="width:30%">  
-
 ### Data Science I Final Project
 
-Welcome to our website.
+<left>
+<img src="https://media.giphy.com/media/mMfE4ySlRONNYleK5G/giphy.gif?cid=ecf05e471x46smmi1he3dymfgiq1z1dn3gh0dkzc2kji7ouq&ep=v1_gifs_search&rid=giphy.gif&ct=g" alt="Tornado GIF" width = 400>
+<img src="images/p8105_stickers.png" alt="stickers" style="width:30%">  
+
+Welcome to our website. Our team explores the fascinating patterns and impacts of tornadoes. This website is created to share our findings with you.
+
+Tornadoes are really interesting things that are super powerful and can happen without much warning. People have been curious about how they form, how strong they are, and where they go for a long time. Over the years, we've gotten better at keeping track of them using things like radars, satellites, and people just saying, "Hey, I saw a tornado!" This has helped us make big collections of data about them. By looking at all this data, we can learn stuff like when and where tornadoes might show up and what kinds of weather make them happen. Tornadoes also cause a lot of problems, like messing up farms, making people move, and breaking things. These days, people use cool data science tools to dig deeper into all this information. The hope is that we can use what we learn to warn people sooner, figure out where tornadoes might hit, and hopefully make them a little less of a problem for everyone.
 
 ## Contributor
 Tianci Zhu (tz2659)<br>
@@ -21,14 +23,15 @@ Jianing Chen (jc6422)<br>
 Puyuan Zhang (pz2334)<br> 
 
 ## Website Overview
+Explore each section by clicking on the titles to dive deeper into the content. Here's what you can find:
 
-[**Data Description**](): A detailed description of the data content. Read [Data Description](data_description.html)
+[**Data Description**](data_description.html): A detailed description of the data content.
 
-[**Project Report**](): An overview of project goals, process, data handling, analysis, and findings. Read [Project Report](report.html)
+[**Project Report**](report.html): An overview of project goals, process, data handling, analysis, and findings.
 
-[**Exploratory Data Analysis**](): Using graphs and statistics to explore and understand tornado patterns and their impacts.
+[**Exploratory Data Analysis**](EDA.html): Using graphs and statistics to explore and understand tornado patterns and their impacts.
 
-[**Statistical Analysis**]():Applying statistical methods to quantify relationships, test hypotheses, and validate trends in tornado impacts. Read [Statistical Analysis](model.html)
+[**Statistical Analysis**](model.html):Applying statistical methods to quantify relationships, test hypotheses, and validate trends in tornado impacts.
 
 [**Interactive Map**](https://fianltornadoes.shinyapps.io/rshiny/): Interactive Shiny map demonstrating trends in disasters and climate indicators over time and differences across the country. 
 

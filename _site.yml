@@ -1,4 +1,4 @@
-name: "tornado distribution"
+name: "Twister Insights: Unraveling Tornado Patterns and Impacts"
 output_dir: "."
 navbar:
   title: "Home"
@@ -11,7 +11,7 @@ navbar:
       href: EDA.html
     - text: "Statistical Analysis"
       href: model.html
-    - text: "Shiny App"
+    - text: "Interactive map"
       href: https://fianltornadoes.shinyapps.io/rshiny/
     - icon: fa-envelope fa-lg
       menu:
