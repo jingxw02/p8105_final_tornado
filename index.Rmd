@@ -35,7 +35,14 @@ Explore each section by clicking on the titles to dive deeper into the content. 
 
 [**Project Report**](report.html): An overview of project goals, process, data handling, analysis, and findings.
 
-[**Screencast**](): Our 2-minute screencast with some tips for using this website.
+[**Screencast**](https://youtu.be/-xeV3B6WoGE): Our 2-minute screencast with some tips for using this website.
+
+```{r echo=FALSE, message = FALSE, warning=FALSE}
+library(vembedr)
+
+embed_url("https://youtu.be/-xeV3B6WoGE")
+```
+
 
 
 
