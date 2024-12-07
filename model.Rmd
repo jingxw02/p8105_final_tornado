@@ -50,7 +50,7 @@ pruned_tree <- prune(tree_model, cp = best_cp)
 rpart.plot(pruned_tree, type = 3, extra = 101, fallen.leaves = TRUE)
 ```
 
-The pruned decision tree identifies magnitude (`mag`) as the primary factor influencing tornado-related injuries. Tornadoes with `mag` < 4 predict minimal injuries, averaging 0.2 injuries in most cases, indicating that low-magnitude tornadoes pose minimal risk. For tornadoes with `mag` >= 4, injuries increase substantially, with additional splits showing that long paths (`len` >= 75 miles) and high property loss (`loss` >= 23) are associated with severe injury outcomes. This hierarchy underscores the dominant role of magnitude, with path length and property loss acting as secondary risk factors in extreme scenarios.
+The pruned decision tree identifies magnitude (`mag`) as the primary factor influencing tornado-related injuries. Tornadoes with `mag` \< 4 predict minimal injuries, averaging 0.2 injuries in most cases, indicating that low-magnitude tornadoes pose minimal risk. For tornadoes with `mag` \>= 4, injuries increase substantially, with additional splits showing that long paths (`len` \>= 75 miles) and high property loss (`loss` \>= 23) are associated with severe injury outcomes. This hierarchy underscores the dominant role of magnitude, with path length and property loss acting as secondary risk factors in extreme scenarios.
 
 ##### 2. Cross-Validation
 
@@ -73,7 +73,7 @@ cv_model <- train(
 rpart.plot(cv_model$finalModel, type = 3, extra = 101, fallen.leaves = TRUE)
 ```
 
-The cross-validated tree confirms that magnitude (`mag`) is the most critical factor, with injuries significantly increasing for `mag` >= 4. This model captures more nuanced relationships among variables, such as the interplay between path length (`len`) and property loss (`loss`). Long paths (`len` >= 75) consistently predict the highest injury counts, while shorter paths refine the predictions based on magnitude and loss. This suggests that while cross-validation slightly improves predictive accuracy, the variable hierarchy remains consistent with the pruned tree.
+The cross-validated tree confirms that magnitude (`mag`) is the most critical factor, with injuries significantly increasing for `mag` \>= 4. This model captures more nuanced relationships among variables, such as the interplay between path length (`len`) and property loss (`loss`). Long paths (`len` \>= 75) consistently predict the highest injury counts, while shorter paths refine the predictions based on magnitude and loss. This suggests that while cross-validation slightly improves predictive accuracy, the variable hierarchy remains consistent with the pruned tree.
 
 ### Importance
 
@@ -84,8 +84,7 @@ cv_model$finalModel$variable.importance
 
 Variable importance rankings in both models reinforce the dominance of magnitude (`mag`), which has a significantly higher score than the other variables. Path length (`len`) is the second most influential factor, followed by property loss (`loss`). Tornado width (`wid`) has a minor role, suggesting that its contribution to injury predictions is less direct. These rankings highlight the importance of focusing on magnitude and path length when assessing tornado injury risks.
 
-The decision tree visualizations clearly illustrate key thresholds in the data. For `mag` >= 4, injuries escalate, particularly when combined with long paths (`len` >= 75) or high property loss (`loss` >= 23). Tornadoes with `mag` < 4 result in minimal injuries regardless of other variables. These thresholds provide actionable insights for disaster preparedness, emphasizing the need to monitor and respond aggressively to high-magnitude and long-path tornadoes.
-
+The decision tree visualizations clearly illustrate key thresholds in the data. For `mag` \>= 4, injuries escalate, particularly when combined with long paths (`len` \>= 75) or high property loss (`loss` \>= 23). Tornadoes with `mag` \< 4 result in minimal injuries regardless of other variables. These thresholds provide actionable insights for disaster preparedness, emphasizing the need to monitor and respond aggressively to high-magnitude and long-path tornadoes.
 
 ## 2. How do tornado characteristics predict the occurrence of longer-path tornadoes?
 
@@ -147,15 +146,15 @@ summary(cv_logistic_model$finalModel)
 
 The variable importance analysis highlights significant predictors:
 
-- Magnitude (mag): Tornado magnitude is the strongest predictor, with higher magnitudes leading to an increased likelihood of long paths.
+-   Magnitude (mag): Tornado magnitude is the strongest predictor, with higher magnitudes leading to an increased likelihood of long paths.
 
-- Width (wid): Wider tornadoes significantly contribute to predicting long-path events, consistent with their destructive nature.
+-   Width (wid): Wider tornadoes significantly contribute to predicting long-path events, consistent with their destructive nature.
 
-- Latitude (slat): Tornadoes at higher latitudes tend to have longer paths.
+-   Latitude (slat): Tornadoes at higher latitudes tend to have longer paths.
 
-- Longitude (slon): Tornadoes further east also predict longer paths.
+-   Longitude (slon): Tornadoes further east also predict longer paths.
 
-- Interaction term (mag:wid): Indicates that the combination of magnitude and width is vital, possibly reflecting compound effects on destruction.
+-   Interaction term (mag:wid): Indicates that the combination of magnitude and width is vital, possibly reflecting compound effects on destruction.
 
 The variance inflation factor (VIF) values are all below the commonly accepted threshold of 5, suggesting no severe multicollinearity among predictors. This ensures model stability and interpretability.
 
@@ -188,17 +187,18 @@ ggplot(data.frame(widths = tornado_widths), aes(x = widths)) +
 
 The histogram shows that:
 
-- Small tornado widths dominate: A significant proportion of tornado widths are concentrated near the lower end of the scale, consistent with the exponential assumption of a high frequency of small values.
+-   Small tornado widths dominate: A significant proportion of tornado widths are concentrated near the lower end of the scale, consistent with the exponential assumption of a high frequency of small values.
 
-- Exponential decay: The red curve, representing the fitted exponential distribution, aligns well with the histogram at the lower widths. This suggests that the exponential model captures the general trend in tornado widths for the majority of the data.
+-   Exponential decay: The red curve, representing the fitted exponential distribution, aligns well with the histogram at the lower widths. This suggests that the exponential model captures the general trend in tornado widths for the majority of the data.
 
-- Right-tail deviation: At the extreme right (larger widths), the histogram shows minor deviations from the exponential curve. This implies that the exponential distribution might underfit the heavier tails, as some exceptionally wide tornadoes occur more frequently than the model predicts.
+-   Right-tail deviation: At the extreme right (larger widths), the histogram shows minor deviations from the exponential curve. This implies that the exponential distribution might underfit the heavier tails, as some exceptionally wide tornadoes occur more frequently than the model predicts.
 
 ## 4. How do fatalities and loss differ across seasons
 
 To investigate whether there are significant differences in fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a non-parametric method was used here to compare the medians of loss and fatalities across different seasons
 
 ### Hypotheses Kruskal-Wallis Test
+
 To evaluate the seasonal differences in tornado impacts, Kruskal-Wallis tests were conducted for both loss and fatalities across seasons. The null hypothesis for each test is that the median values of loss and fatalities are the same across all seasons, while the alternative hypothesis states that at least one season has a significantly different median. Using the cleaned dataset, which includes the categorical variable `season` and the continuous variables `loss` and `fat` (fatalities), the test statistics and p-values were calculated to assess the significance of these differences at a 0.05 significance level. This approach allows for a robust comparison of median values across seasons, even with non-normally distributed data.
 
 ```{r setup, include=FALSE}
