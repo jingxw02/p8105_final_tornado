@@ -1,6 +1,10 @@
 ---
 title: "Project Report"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
 ---
 
 ```{r, include = FALSE, message = FALSE, warning = FALSE}
@@ -38,7 +42,142 @@ Our project draws inspiration from the reports provided by NOAA's National Weath
 
 We first want to understand that starting from the year 2000, how tornado occurrences in US and their impacts have changed over time, both seasonally and annually, and identify patterns in their frequency across regions and states. Additionally, we aim to explore the relationships between tornado characteristics—such as magnitude, path length, and path width—and their impacts, including characteristics such as injuries, fatalities, and property loss. Besides, we also try to investigate how these impacts vary across seasons and regions and determine the key factors that contribute to severe outcomes like fatalities and injuries. By analyzing using the visualized and statistical relationships between tornado characteristics and corresponding impacts, we can identify meaningful patterns that can help offer preparedness strategies.
 
-<<<<<<< HEAD
+# EDA
+
+# Tornado Distribution
+Annual trend of tornadoes from 2000 to 2023
+
+```{r}
+annual_trend = cleaned %>%
+  group_by(yr) %>%
+  summarise(count = n()) 
+
+annual_plot = ggplot(annual_trend, aes(x = yr, y = count)) +
+geom_line(color = "blue") +
+geom_point()+
+theme_minimal() +
+labs(title = "Annual Number of Tornadoes (2000-2023)", x = "Year", y = "Count")
+
+ggplotly(annual_plot)
+
+```
+
+Based on this plot, we found that there is no obvious trend according to years. There are fewer tornadoes around 2014 and there are higher tornadoes occurrence around 2004.
+
+Monthly Distribution of Tornadoes
+
+```{r}
+monthly_distribution = cleaned %>%
+  group_by(mo) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+
+print(monthly_distribution)
+
+monthly_plot= ggplot(monthly_distribution, aes(x = factor(mo), y = count)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  theme_minimal() +
+  labs(title = "Monthly Distribution of Tornadoes", x = "Month", y = "Count")
+ggplotly(monthly_plot)
+```
+
+This monthly distribution of tornadoes is unimodal and slightly right-skewed, which concentrated within the range of April to June and has a peak in May.
+
+Seasonal Distribution of Tornadoes
+
+```{r}
+seasonal_distribution = cleaned %>%
+  mutate(
+    season = case_when(
+      mo %in% c(12, 1, 2) ~ "Winter",
+      mo %in% c(3, 4, 5) ~ "Spring",
+      mo %in% c(6, 7, 8) ~ "Summer",
+      mo %in% c(9, 10, 11) ~ "Fall"
+    ),
+    season = factor(season, levels = c("Spring","Summer","Fall", "Winter"))
+  )%>%
+  group_by(season) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
+
+print(seasonal_distribution)
+
+seasonal_plot = seasonal_distribution %>%
+  ggplot(aes(x = season, y = count, fill = season)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Seasonal Tornado Counts", x = "Season", y = "Number of Tornadoes") +
+  theme_minimal()
+
+ggplotly(seasonal_plot)
+```
+
+From this histogram, Spring has more tornado occurrences which is more than 10000 tornadoes and winter is the least active season which is around 2900 tornadoes. The activity of tornado occurrences is decreasing seasonally.
+
+# Tornado Impact
+
+Relationship between tornado magnitude and its impact on injuries, fatalities and proporty loss.
+
+```{r}
+impact_plot = cleaned %>%
+  pivot_longer(cols = c(inj, fat, loss), 
+               names_to = "impact", 
+               values_to = "value") %>%
+  ggplot(aes(x = as.factor(mag), y = value, fill = impact)) +
+  geom_boxplot(outlier.colour = "red", outlier.size = 0.8 ) +
+  facet_wrap(~impact, 
+             scales = "free", 
+             labeller = labeller(impact = c(
+    "inj" = "Injuries",
+    "fat" = "Fatalities",
+    "loss" = "Property Loss"
+  ))) +
+  labs(title = "Tornado Impacts by Magnitude", 
+       x = "Tornado Magnitude", 
+       y = "Impact Value") +
+  theme_minimal()
+
+ggplotly(impact_plot)
+```
+
+- From the distribution of fatalities associated with tornado magnitude, there is an increasing trend. For lower magnitudes (0-2), fatalities are low and concentrated near zero with very few outliers. Starting at magnitude 3, fatalities show an increase in variability, with some outliers reaching significant numbers. At magnitude 4 and 5, the median fatalities tend to increase with magnitude and there is an outlier over 150 fatalities.
+
+- From the distribution of injuries associated with tornado magnitude, there is an increasing trend. At the lower magnitudes (0-2), injuries are minimal, with medians near 0. Injuries increases significantly from magnitude 3 to magnitude 5. At magnitude 5, there is an outlier indicating extreme cases of over 1,500 injuries. The median at magnitude 5 is lower than the median in the distribution of fatalities with tornado magnitude.
+
+- From the distribution of property loss associated with tornado magnitude, the variability in property loss grows substantially at higher magnitudes, indicates that stronger tornadoes often result in catastrophic property damage. 
+
+- By these three box plots, we can observe that the stronger tornadoes (magnitude 4-5) are associated with exponentially greater impact on fatalities, injuries and property loss. While the lower magnitude tornadoes (magnitude 0-2) are generally less impactful, the significant outliers at higher magnitudes indicates the potential for catastrophic events. These findings highlight the importance of preparedness and mitigation measures for communities in areas prone to high-magnitude tornadoes, as they pose the most severe risks.
+
+Association between tornadoes magnitude with "path_length" and "path_width"
+
+```{r}
+impact_plot2 = cleaned %>%
+  pivot_longer(cols = c(len, wid), 
+               names_to = "metric", 
+               values_to = "value") %>%
+  ggplot(aes(x = as.factor(mag), y = value, color = metric)) +
+  geom_boxplot(outlier.colour = "blue", outlier.size = 0.8) +
+  facet_wrap(~metric, 
+             scales = "free_y", 
+             labeller = labeller(metric = c(
+    "len" = "Path Length (miles)",
+    "wid" = "Path Width (yards)"
+  ))) +
+  labs(
+    title = "Distribution of Path Length and Width by Tornado Magnitude",
+    x = "Tornado Magnitude",
+    y = "Value"
+  ) +
+  theme_minimal()
+
+ggplotly(impact_plot2)
+```
+
+- Both path length and path width increase consistently with tornado magnitude, which suggests that stronger tornadoes tend to cover longer distance and have wider destructive zones.
+
+- As magnitude increases, the variability in both path length and width grows significantly. Higher magnitude tornadoes are not only more intense but also less predictable in their extent and size.
+
+- The outliers are more common and extreme at higher magnitudes, which reflects the rare but catastrophic tornadoes that occur at these levels.
+
 # Statistical analysis
 
 ## 1: What are the key factors that contribute to the number of injuries caused by tornadoes?
@@ -200,166 +339,6 @@ library(tidymodels)
 library(performance)
 library(see)
 ```
-
-To investigate whether there are significant differences in fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a non-parametric method was used here to compare the medians of loss and fatalities across different seasons
-
-### Hypotheses Kruskal-Wallis Test
-Hypotheses Kruskal-Wallis Test for Loss Across Seasons
-
--   Null Hypothesis (H0): The median loss is the same across all seasons.
-
--   Alternative Hypothesis (H1): At least one season has a significantly different median loss.
-
-Hypotheses Kruskal-Wallis Test for fatalities Across Seasons
-
--   Null Hypothesis (H0): The median of fataltiies is the same across all seasons.
-
--   Alternative Hypothesis (H1): At least one season has a significantly different median fatalities
-
-The Kruskal-Wallis test was applied to the cleaned dataset, which includes a categorical variable season and continuous variables loss and fat (fatalities). The test statistic was calculated, and p-values were used to assess the significance of the differences (significance level=0.05).
-=======
->>>>>>> 1d419d116482f9a0ecf2e52aa28349b945560c7f
-
-
-## EDA
-
-# Tornado Distribution
-Annual trend of tornadoes from 2000 to 2023
-
-```{r}
-annual_trend = cleaned %>%
-  group_by(yr) %>%
-  summarise(count = n()) 
-
-annual_plot = ggplot(annual_trend, aes(x = yr, y = count)) +
-geom_line(color = "blue") +
-geom_point()+
-theme_minimal() +
-labs(title = "Annual Number of Tornadoes (2000-2023)", x = "Year", y = "Count")
-
-ggplotly(annual_plot)
-
-```
-
-Based on this plot, we found that there is no obvious trend according to years. There are fewer tornadoes around 2014 and there are higher tornadoes occurrence around 2004.
-
-Monthly Distribution of Tornadoes
-
-```{r}
-monthly_distribution = cleaned %>%
-  group_by(mo) %>%
-  summarise(count = n()) %>%
-  arrange(desc(count))
-
-print(monthly_distribution)
-
-monthly_plot= ggplot(monthly_distribution, aes(x = factor(mo), y = count)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
-  theme_minimal() +
-  labs(title = "Monthly Distribution of Tornadoes", x = "Month", y = "Count")
-ggplotly(monthly_plot)
-```
-
-This monthly distribution of tornadoes is unimodal and slightly right-skewed, which concentrated within the range of April to June and has a peak in May.
-
-Seasonal Distribution of Tornadoes
-
-```{r}
-seasonal_distribution = cleaned %>%
-  mutate(
-    season = case_when(
-      mo %in% c(12, 1, 2) ~ "Winter",
-      mo %in% c(3, 4, 5) ~ "Spring",
-      mo %in% c(6, 7, 8) ~ "Summer",
-      mo %in% c(9, 10, 11) ~ "Fall"
-    ),
-    season = factor(season, levels = c("Spring","Summer","Fall", "Winter"))
-  )%>%
-  group_by(season) %>%
-  summarize(count = n()) %>%
-  arrange(desc(count))
-
-print(seasonal_distribution)
-
-seasonal_plot = seasonal_distribution %>%
-  ggplot(aes(x = season, y = count, fill = season)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Seasonal Tornado Counts", x = "Season", y = "Number of Tornadoes") +
-  theme_minimal()
-
-ggplotly(seasonal_plot)
-```
-
-From this histogram, Spring has more tornado occurrences which is more than 10000 tornadoes and winter is the least active season which is around 2900 tornadoes. The activity of tornado occurrences is decreasing seasonally.
-
-# Tornado Impact
-
-Relationship between tornado magnitude and its impact on injuries, fatalities and proporty loss.
-
-```{r}
-impact_plot = cleaned %>%
-  pivot_longer(cols = c(inj, fat, loss), 
-               names_to = "impact", 
-               values_to = "value") %>%
-  ggplot(aes(x = as.factor(mag), y = value, fill = impact)) +
-  geom_boxplot(outlier.colour = "red", outlier.size = 0.8 ) +
-  facet_wrap(~impact, 
-             scales = "free", 
-             labeller = labeller(impact = c(
-    "inj" = "Injuries",
-    "fat" = "Fatalities",
-    "loss" = "Property Loss"
-  ))) +
-  labs(title = "Tornado Impacts by Magnitude", 
-       x = "Tornado Magnitude", 
-       y = "Impact Value") +
-  theme_minimal()
-
-ggplotly(impact_plot)
-```
-
-- From the distribution of fatalities associated with tornado magnitude, there is an increasing trend. For lower magnitudes (0-2), fatalities are low and concentrated near zero with very few outliers. Starting at magnitude 3, fatalities show an increase in variability, with some outliers reaching significant numbers. At magnitude 4 and 5, the median fatalities tend to increase with magnitude and there is an outlier over 150 fatalities.
-
-- From the distribution of injuries associated with tornado magnitude, there is an increasing trend. At the lower magnitudes (0-2), injuries are minimal, with medians near 0. Injuries increases significantly from magnitude 3 to magnitude 5. At magnitude 5, there is an outlier indicating extreme cases of over 1,500 injuries. The median at magnitude 5 is lower than the median in the distribution of fatalities with tornado magnitude.
-
-- From the distribution of property loss associated with tornado magnitude, the variability in property loss grows substantially at higher magnitudes, indicates that stronger tornadoes often result in catastrophic property damage. 
-
-- By these three box plots, we can observe that the stronger tornadoes (magnitude 4-5) are associated with exponentially greater impact on fatalities, injuries and property loss. While the lower magnitude tornadoes (magnitude 0-2) are generally less impactful, the significant outliers at higher magnitudes indicates the potential for catastrophic events. These findings highlight the importance of preparedness and mitigation measures for communities in areas prone to high-magnitude tornadoes, as they pose the most severe risks.
-
-Association between tornadoes magnitude with "path_length" and "path_width"
-
-```{r}
-impact_plot2 = cleaned %>%
-  pivot_longer(cols = c(len, wid), 
-               names_to = "metric", 
-               values_to = "value") %>%
-  ggplot(aes(x = as.factor(mag), y = value, color = metric)) +
-  geom_boxplot(outlier.colour = "blue", outlier.size = 0.8) +
-  facet_wrap(~metric, 
-             scales = "free_y", 
-             labeller = labeller(metric = c(
-    "len" = "Path Length (miles)",
-    "wid" = "Path Width (yards)"
-  ))) +
-  labs(
-    title = "Distribution of Path Length and Width by Tornado Magnitude",
-    x = "Tornado Magnitude",
-    y = "Value"
-  ) +
-  theme_minimal()
-
-ggplotly(impact_plot2)
-```
-
-- Both path length and path width increase consistently with tornado magnitude, which suggests that stronger tornadoes tend to cover longer distance and have wider destructive zones.
-
-- As magnitude increases, the variability in both path length and width grows significantly. Higher magnitude tornadoes are not only more intense but also less predictable in their extent and size.
-
-- The outliers are more common and extreme at higher magnitudes, which reflects the rare but catastrophic tornadoes that occur at these levels.
-
-
-
-## 3. How do fatalities and loss differ across seasons
 
 To investigate whether there are significant differences in fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a non-parametric method was used here to compare the medians of loss and fatalities across different seasons
 
