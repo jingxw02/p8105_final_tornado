@@ -1,3 +1,31 @@
+```{r, include = FALSE, message = FALSE, warning = FALSE}
+library(tidyverse)
+```
+
+```{r}
+tornado_data <- read.csv("./data/1950-2023_actual_tornadoes.csv", na.strings = c("NA", "N/A", " "))
+
+cleaned <- tornado_data |>
+  filter(yr >= 2000) |>
+  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |>
+  relocate(fc, .after = mag)|>
+  drop_na()
+```
+
+# Motivation
+
+Tornadoes are among the most destructive natural disasters, causing significant damage to lives, properties, and infrastructure. Beyond their immediate impacts, the variability in their occurrence, characteristics, and consequences poses unique challenges to disaster preparedness and resource allocation. Understanding these patterns is critical for mitigating risks and enhancing community resilience.
+
+This project aims to provide data-driven insights into tornado dynamics, addressing key questions related to their occurrence, characteristics, and impacts. By leveraging statistical analyses and modeling techniques, such as exponential distribution fitting, seasonal impact assessments, and predictive modeling, this study strives to:
+
+1. Illuminate patterns in tornado characteristics (e.g., width, path length, magnitude) to inform forecasting and early warning systems.
+
+2. Investigate seasonal and regional variations in tornado-induced losses and fatalities to guide resource prioritization and disaster management strategies.
+
+3. Evaluate the interplay of factors contributing to tornado-related damages, helping identify high-risk scenarios and areas requiring targeted interventions.
+
+4. Compare and refine models to ensure accurate predictions and actionable insights for policymakers, emergency responders, and local communities.
+
 # Related works
 Our project draws inspiration from the reports provided by NOAA's National Weather Service, which detail the frequency, severity, and impacts of tornadoes across the United States. These reports serve as a foundational reference for understanding the critical need to analyze storm data and its implications for disaster preparedness. Additionally, some concepts utilized in this project is the content taught in the P8105 class, particularly in the areas of data cleaning, exploratory data analysis (EDA), linear regression, cross-validation and rshiny dashboards. The integration of these techniques has effectively helped us process and analyze large, complex datasets systematically, also figure out the patterns of the datasets, and build models for predicting tornado impacts. 
 
@@ -5,7 +33,167 @@ Our project draws inspiration from the reports provided by NOAA's National Weath
 
 We first want to understand that starting from the year 2000, how tornado occurrences in US and their impacts have changed over time, both seasonally and annually, and identify patterns in their frequency across regions and states. Additionally, we aim to explore the relationships between tornado characteristics—such as magnitude, path length, and path width—and their impacts, including characteristics such as injuries, fatalities, and property loss. Besides, we also try to investigate how these impacts vary across seasons and regions and determine the key factors that contribute to severe outcomes like fatalities and injuries. By analyzing using the visualized and statistical relationships between tornado characteristics and corresponding impacts, we can identify meaningful patterns that can help offer preparedness strategies.
 
-## 3. How do fatalities and loss differ across seasons
+# Statistical analysis
+
+## 1: What are the key factors that contribute to the number of injuries caused by tornadoes?
+
+In order to to identify key factors contributing to tornado-related injuries, pruned decision tree and cross-validated decision tree were constructed to highlight variable importance and thresholds.
+
+```{r, include = FALSE, message = FALSE, warning = FALSE}
+library(rpart)
+library(rpart.plot)
+library(caret)
+
+tree_model <- rpart(inj ~ mag + wid + len + loss, data = cleaned, method = "anova")
+```
+
+### Pruned tree model
+
+```{r}
+# Pruning
+best_cp <- tree_model$cptable[which.min(tree_model$cptable[, "xerror"]), "CP"]
+
+
+pruned_tree <- prune(tree_model, cp = best_cp)
+rpart.plot(pruned_tree, type = 3, extra = 101, fallen.leaves = TRUE)
+```
+
+### Cross-validated tree model
+
+```{r warning=FALSE}
+# Cross-Validation
+set.seed(123)
+train_control <- trainControl(method = "cv", number = 10)
+cv_model <- train(
+  inj ~ mag + wid + len + loss,
+  data = cleaned,
+  method = "rpart",
+  trControl = train_control,
+  tuneLength = 10
+)
+
+rpart.plot(cv_model$finalModel, type = 3, extra = 101, fallen.leaves = TRUE)
+```
+
+Findings:
+
+- Magnitude (`mag`) is the most significant factor, with injuries rising significantly for tornadoes with mag ≥ 4.
+
+- Path length (`len`) and property loss (`loss`) emerged as secondary factors in extreme scenarios.
+
+- Clear thresholds for actionable insights, such as mag ≥ 4 and len ≥ 75, were identified to prioritize disaster preparedness efforts.
+
+
+## 2: How do tornado characteristics predict the occurrence of longer-path tornadoes?
+
+In order to assess tornado characteristics influencing the occurrence of long-path tornadoes (len ≥ 75 miles), we use logistic regression with 10-fold cross-validation to ensure model generalization.
+
+
+```{r, message = FALSE, warning = FALSE}
+library(pROC)
+library(caret)
+
+set.seed(123)
+
+cleaned$long_path_binary <- factor(ifelse(cleaned$len > quantile(cleaned$len, 0.75), 1, 0),
+                                   levels = c(0, 1), labels = c("No", "Yes"))
+
+# Set up Cross-Validation
+
+cv_control <- trainControl(
+  method = "cv",
+  number = 10, 
+  classProbs = TRUE, 
+  summaryFunction = twoClassSummary
+)
+
+# Train Logistic Regression Model with Cross-Validation
+
+cv_logistic_model <- train(
+  long_path_binary ~ slat + slon + mag * wid,
+  data = cleaned,
+  method = "glm",
+  family = binomial(),
+  metric = "ROC", 
+  trControl = cv_control
+)
+
+cv_logistic_model
+```
+
+```{r}
+cv_results <- cv_logistic_model$results
+cv_results
+
+roc_curve <- roc(
+  cleaned$long_path_binary,
+  predict(cv_logistic_model, newdata = cleaned, type = "prob")[, "Yes"]
+)
+plot(roc_curve, main = "ROC Curve with Cross-Validation", col = "blue", lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = "gray")
+```
+
+```{r, message = FALSE, warning = FALSE}
+library(car)
+
+vif(cv_logistic_model$finalModel)
+
+summary(cv_logistic_model$finalModel)
+```
+
+Findings:
+
+- The model achieved a high ROC value (0.835), with strong sensitivity (0.954) but low specificity (0.393).
+
+- Significant predictors included magnitude, width, latitude, and longitude, with interaction effects indicating compounding risk factors.
+
+## 3: Does the distribution of tornado widths fit an exponential distribution?
+
+In order to evaluate whether tornado widths follow an exponential distribution, we use Maximum Likelihood Estimation (MLE) was used to estimate the rate parameter (λ).
+
+
+```{r, message = FALSE, warning = FALSE}
+library(MASS)
+library(ggplot2)
+
+tornado_widths <- cleaned$wid[!is.na(cleaned$wid)]
+
+exp_fit <- fitdistr(tornado_widths, "exponential")
+
+cat("MLE Estimated Rate (Lambda):", exp_fit$estimate, "\n")
+```
+
+```{r, message = FALSE, warning = FALSE}
+ggplot(data.frame(widths = tornado_widths), aes(x = widths)) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "lightblue", color = "black") +
+  stat_function(fun = dexp, args = list(rate = exp_fit$estimate), color = "red", size = 1) +
+  labs(
+    title = "Tornado Widths and Fitted Exponential Distribution",
+    x = "Tornado Width",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+Findings:
+
+- Estimated λ = 0.0070 indicated a rapid decline in the density of larger tornado widths.
+
+- The exponential distribution captured the general trend, although deviations in the right tail suggested underfitting for exceptionally wide tornadoes.
+
+## 4. How do fatalities and loss differ across seasons
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(plotly)
+library(modelr)
+library(purrr)
+library(FSA)
+library(tidymodels)
+library(performance)
+library(see)
+```
 
 To investigate whether there are significant differences in fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a non-parametric method was used here to compare the medians of loss and fatalities across different seasons
 
@@ -24,30 +212,6 @@ Hypotheses Kruskal-Wallis Test for fatalities Across Seasons
 
 The Kruskal-Wallis test was applied to the cleaned dataset, which includes a categorical variable season and continuous variables loss and fat (fatalities). The test statistic was calculated, and p-values were used to assess the significance of the differences (significance level=0.05).
 
-```{r setup, include=FALSE}
-library(dplyr)
-library(tidyverse)
-library(plotly)
-library(modelr)
-library(purrr)
-library(FSA)
-library(tidymodels)
-library(performance)
-library(see)
-```
-
-```{r}
-tornado_data <- read.csv("./data/1950-2023_actual_tornadoes.csv", na.strings = c("NA", "N/A", " "))
-
-cleaned <- tornado_data |>
-  filter(yr >= 2000) |>
-  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |>
-  relocate(fc, .after = mag)|>
-  drop_na()
-  
-# Optional
-write.csv(cleaned, "cleaned_df.csv", row.names = FALSE)
-```
 
 ```{r}
 cleaned=cleaned |> 
@@ -98,7 +262,7 @@ print(dunn_fatalities)
 
 Regarding the comparisons of median based fatalities between different seasons, the adjusted p value shows the statistically significant differences for all except the fall and spring, indicating the approximately similar median fatalities between these two seasons. Based on the observations of other comparisons,winter season shows relatively higher fatalities compare to other seasons, followed by summer. Therefore, more preventive measures should be taken during Summer and Winter to address the heightened risks of fatalities.
 
-## 4. How does the magnitude of events predict the distribution of fatalities?
+## 5. How does the magnitude of events predict the distribution of fatalities?
 
 To examine whether there is an association between the variables `mag` (magnitude) and `fat` (fatalities) in the dataset, a Chi-Square test of independence was performed. The Null Hypothesis (H0) states that the magnitude of the tornadoes and fatalities are independent. And the Alternative Hypothesis (H1) states that there is an association between the magnitude of tornado events and numbers of fatalities.
 
@@ -111,7 +275,7 @@ chisq.test(table_data)
 
 The result shows that the p-value is far below the standard significance level (e.g., 0.05), so we reject the null hypothesis, indicating that there is a statistically significant association between the magnitude of the event and the number of fatalities. This result statistically confirms the observations initially identified during the exploratory data analysis (EDA), where trends suggested that higher magnitudes are likely to result in more fatalities.
 
-## 5. Model comparison on predicting fatalities based on event characteristics.
+## 6. Model comparison on predicting fatalities based on event characteristics.
 
 The linear regression model was then developed to analyze the relationship between fatalities (fat) as the dependent variable and multiple predictors: magnitude (mag), injuries (inj), loss (loss), length (len), and width (wid). And diagnostics were conducted to evaluate the assumptions of linear regression, including linearity, normality, homogeneity of variance, and outliers. The `check_model()` function was used to evaluate four assumptions of linear regression model: Linearity, Normality (QQ Plot), Homogeneity of Variance (Homoscedasticity) and Influential Observations
 
@@ -224,6 +388,14 @@ cv_long|>ggplot(aes(x = model, y = rmse)) +
 It is observed that the better performance of the first model `model1_mod` using cross-validation is slightly better compared to the second model `model2_mod`, with the RMSE increase from about 0.71 to 1.12. And it is probably because the basic model captures nuanced nonlinear relationships for every variable individually. In contrast, the second model simplifies the treatment of `inj` and `loss` by using an interaction term (`inj:loss`) instead of capturing their individual nonlinear effects. Additionally, `model1_mod` may perform better if the dataset contains sufficient data points to support the added complexity of fitting multiple polynomial terms without overfitting.
 
 # Discussion
+
+The first three models provided detailed insights into different aspects of tornado behavior and their associated impacts. The decision tree model identified the magnitude of tornadoes as the most significant factor influencing injuries. Tornadoes with lower magnitudes (`mag` < 4) resulted in minimal injuries, whereas those with higher magnitudes (`mag` ≥ 4) were associated with substantial injuries, further exacerbated by factors like long paths or high property losses. This result aligns with existing literature and reinforces the critical role of magnitude in assessing tornado risks. However, the model’s hierarchical structure highlights that while magnitude dominates, secondary factors such as path length and property loss play crucial roles in predicting outcomes for more severe events.
+
+The logistic regression model further explored the predictors of long-path tornadoes, emphasizing the importance of magnitude and width alongside geographic factors like latitude and longitude. This model demonstrated strong sensitivity in identifying long-path tornadoes, underscoring its effectiveness in capturing high-risk events. However, the lower specificity indicated challenges in minimizing false positives, which could lead to overprediction of long-path tornadoes. This limitation suggests a need for further refinement, possibly through the inclusion of additional predictors or adjustments for data imbalances. Despite this, the model's ability to generalize well across data, as evidenced by the cross-validation results, highlights its robustness for predictive purposes.
+
+The exponential distribution model of tornado widths provided insights into the distributional characteristics of tornado dimensions. The fitted model captured the general trend of tornado widths, with a high frequency of narrower tornadoes dominating the dataset. The estimated rate parameter (λ) reflected the steep decline in density as width increased. However, deviations in the right tail of the distribution suggested that the model underfit extreme cases of exceptionally wide tornadoes, limiting its capacity to address outliers effectively. This finding points to the potential for alternative modeling approaches to better capture the characteristics of rare but impactful extreme-width tornadoes.
+
+Across the models, magnitude consistently emerged as a dominant variable, influencing both the frequency of injuries and the likelihood of long paths. Additionally, the exponential distribution of tornado widths provided a strong foundation for understanding the distributional trends but revealed the need for more nuanced modeling of outliers. Together, these models contribute to a comprehensive understanding of tornado impacts, offering actionable insights for risk mitigation and disaster preparedness. While effective in their specific applications, each model also presented limitations, such as underfitting extreme values or overpredicting certain outcomes, highlighting areas for future refinement and methodological improvement.
 
 The statistical analysis also explores the seasonal variations in tornado impacts, and focus on economic losses and fatalities, and some other factors related to the tornado. The analysis demonstrated significant seasonal differences in both losses and fatalities, confirmed through the Kruskal-Wallis test and subsequent Dunn’s post-hoc tests. Winter emerged as the season with the highest median losses, followed by Fall, while fatalities were also higher in Winter and Summer. These findings highlight the need for targeted preventive measures in Winter and Summer, particularly for fatalities, and in Winter and Fall for economic impacts, even though tornadoes may not be the most frequent during these seasons. However, a limitation of this analysis is its reliance on the median as a measure of central tendency, which may overlook extreme values or variability within the data. But it can still gives a general overview of seasonal trends and provide insights into typical outcomes
 

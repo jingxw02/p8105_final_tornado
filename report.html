@@ -13,7 +13,7 @@
 
 <title>report.knit</title>
 
-<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
@@ -251,7 +251,13 @@ $(document).ready(function () {
   <a href="report.html">Project Report</a>
 </li>
 <li>
-  <a href="summary_viz.html">EDA</a>
+  <a href="data_description.html">Data Description</a>
+</li>
+<li>
+  <a href="eda.html">EDA</a>
+</li>
+<li>
+  <a href="summary_viz.html">summary_viz</a>
 </li>
 <li>
   <a href="model.html">Statistical Analysis</a>
@@ -259,11 +265,35 @@ $(document).ready(function () {
 <li>
   <a href="https://fianltornadoes.shinyapps.io/rshiny/">Shiny App</a>
 </li>
-<li>
-  <a href="mailto:jc6422@cumc.columbia.edu">
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     <span class="fa fa-envelope fa-lg"></span>
      
+     
+    <span class="caret"></span>
   </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Jianing Chen</li>
+    <li>
+      <a href="mailto:jc6422@cumc.columbia.edu"></a>
+    </li>
+    <li class="dropdown-header">Jingxi Wang</li>
+    <li>
+      <a href="mailto:jw4690@cumc.columbia.edu"></a>
+    </li>
+    <li class="dropdown-header">Xikun Wang</li>
+    <li>
+      <a href="mailto:xw3038@cumc.columbia.edu"></a>
+    </li>
+    <li class="dropdown-header">Puyuan Zhang</li>
+    <li>
+      <a href="mailto:pz2334@cumc.columbia.edu"></a>
+    </li>
+    <li class="dropdown-header">Tianci Zhu</li>
+    <li>
+      <a href="mailto:tz2659@cumc.columbia.edu"></a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="https://github.com/jingxw02/p8105_final_tornado">
@@ -284,6 +314,41 @@ $(document).ready(function () {
 </div>
 
 
+<pre class="r"><code>tornado_data &lt;- read.csv(&quot;./data/1950-2023_actual_tornadoes.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;N/A&quot;, &quot; &quot;))
+
+cleaned &lt;- tornado_data |&gt;
+  filter(yr &gt;= 2000) |&gt;
+  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |&gt;
+  relocate(fc, .after = mag)|&gt;
+  drop_na()</code></pre>
+<div id="motivation" class="section level1">
+<h1>Motivation</h1>
+<p>Tornadoes are among the most destructive natural disasters, causing
+significant damage to lives, properties, and infrastructure. Beyond
+their immediate impacts, the variability in their occurrence,
+characteristics, and consequences poses unique challenges to disaster
+preparedness and resource allocation. Understanding these patterns is
+critical for mitigating risks and enhancing community resilience.</p>
+<p>This project aims to provide data-driven insights into tornado
+dynamics, addressing key questions related to their occurrence,
+characteristics, and impacts. By leveraging statistical analyses and
+modeling techniques, such as exponential distribution fitting, seasonal
+impact assessments, and predictive modeling, this study strives to:</p>
+<ol style="list-style-type: decimal">
+<li><p>Illuminate patterns in tornado characteristics (e.g., width, path
+length, magnitude) to inform forecasting and early warning
+systems.</p></li>
+<li><p>Investigate seasonal and regional variations in tornado-induced
+losses and fatalities to guide resource prioritization and disaster
+management strategies.</p></li>
+<li><p>Evaluate the interplay of factors contributing to tornado-related
+damages, helping identify high-risk scenarios and areas requiring
+targeted interventions.</p></li>
+<li><p>Compare and refine models to ensure accurate predictions and
+actionable insights for policymakers, emergency responders, and local
+communities.</p></li>
+</ol>
+</div>
 <div id="related-works" class="section level1">
 <h1>Related works</h1>
 <p>Our project draws inspiration from the reports provided by NOAA’s
@@ -313,9 +378,194 @@ factors that contribute to severe outcomes like fatalities and injuries.
 By analyzing using the visualized and statistical relationships between
 tornado characteristics and corresponding impacts, we can identify
 meaningful patterns that can help offer preparedness strategies.</p>
+</div>
+<div id="statistical-analysis" class="section level1">
+<h1>Statistical analysis</h1>
+<div
+id="what-are-the-key-factors-that-contribute-to-the-number-of-injuries-caused-by-tornadoes"
+class="section level2">
+<h2>1: What are the key factors that contribute to the number of
+injuries caused by tornadoes?</h2>
+<p>In order to to identify key factors contributing to tornado-related
+injuries, pruned decision tree and cross-validated decision tree were
+constructed to highlight variable importance and thresholds.</p>
+<div id="pruned-tree-model" class="section level3">
+<h3>Pruned tree model</h3>
+<pre class="r"><code># Pruning
+best_cp &lt;- tree_model$cptable[which.min(tree_model$cptable[, &quot;xerror&quot;]), &quot;CP&quot;]
+
+
+pruned_tree &lt;- prune(tree_model, cp = best_cp)
+rpart.plot(pruned_tree, type = 3, extra = 101, fallen.leaves = TRUE)</code></pre>
+<p><img src="report_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="cross-validated-tree-model" class="section level3">
+<h3>Cross-validated tree model</h3>
+<pre class="r"><code># Cross-Validation
+set.seed(123)
+train_control &lt;- trainControl(method = &quot;cv&quot;, number = 10)
+cv_model &lt;- train(
+  inj ~ mag + wid + len + loss,
+  data = cleaned,
+  method = &quot;rpart&quot;,
+  trControl = train_control,
+  tuneLength = 10
+)
+
+rpart.plot(cv_model$finalModel, type = 3, extra = 101, fallen.leaves = TRUE)</code></pre>
+<p><img src="report_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>Findings:</p>
+<ul>
+<li><p>Magnitude (<code>mag</code>) is the most significant factor, with
+injuries rising significantly for tornadoes with mag ≥ 4.</p></li>
+<li><p>Path length (<code>len</code>) and property loss
+(<code>loss</code>) emerged as secondary factors in extreme
+scenarios.</p></li>
+<li><p>Clear thresholds for actionable insights, such as mag ≥ 4 and len
+≥ 75, were identified to prioritize disaster preparedness
+efforts.</p></li>
+</ul>
+</div>
+</div>
+<div
+id="how-do-tornado-characteristics-predict-the-occurrence-of-longer-path-tornadoes"
+class="section level2">
+<h2>2: How do tornado characteristics predict the occurrence of
+longer-path tornadoes?</h2>
+<p>In order to assess tornado characteristics influencing the occurrence
+of long-path tornadoes (len ≥ 75 miles), we use logistic regression with
+10-fold cross-validation to ensure model generalization.</p>
+<pre class="r"><code>library(pROC)
+library(caret)
+
+set.seed(123)
+
+cleaned$long_path_binary &lt;- factor(ifelse(cleaned$len &gt; quantile(cleaned$len, 0.75), 1, 0),
+                                   levels = c(0, 1), labels = c(&quot;No&quot;, &quot;Yes&quot;))
+
+# Set up Cross-Validation
+
+cv_control &lt;- trainControl(
+  method = &quot;cv&quot;,
+  number = 10, 
+  classProbs = TRUE, 
+  summaryFunction = twoClassSummary
+)
+
+# Train Logistic Regression Model with Cross-Validation
+
+cv_logistic_model &lt;- train(
+  long_path_binary ~ slat + slon + mag * wid,
+  data = cleaned,
+  method = &quot;glm&quot;,
+  family = binomial(),
+  metric = &quot;ROC&quot;, 
+  trControl = cv_control
+)
+
+cv_logistic_model</code></pre>
+<pre><code>## Generalized Linear Model 
+## 
+## 29507 samples
+##     4 predictor
+##     2 classes: &#39;No&#39;, &#39;Yes&#39; 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (10 fold) 
+## Summary of sample sizes: 26556, 26557, 26556, 26557, 26556, 26556, ... 
+## Resampling results:
+## 
+##   ROC       Sens       Spec     
+##   0.835001  0.9543641  0.3930859</code></pre>
+<pre class="r"><code>cv_results &lt;- cv_logistic_model$results
+cv_results</code></pre>
+<pre><code>##   parameter      ROC      Sens      Spec       ROCSD      SensSD     SpecSD
+## 1      none 0.835001 0.9543641 0.3930859 0.006624361 0.004754727 0.01020199</code></pre>
+<pre class="r"><code>roc_curve &lt;- roc(
+  cleaned$long_path_binary,
+  predict(cv_logistic_model, newdata = cleaned, type = &quot;prob&quot;)[, &quot;Yes&quot;]
+)</code></pre>
+<pre><code>## Setting levels: control = No, case = Yes</code></pre>
+<pre><code>## Setting direction: controls &lt; cases</code></pre>
+<pre class="r"><code>plot(roc_curve, main = &quot;ROC Curve with Cross-Validation&quot;, col = &quot;blue&quot;, lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = &quot;gray&quot;)</code></pre>
+<p><img src="report_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>library(car)
+
+vif(cv_logistic_model$finalModel)</code></pre>
+<pre><code>##      slat      slon       mag       wid `mag:wid` 
+##  1.045057  1.055685  2.108353  2.683890  4.213116</code></pre>
+<pre class="r"><code>summary(cv_logistic_model$finalModel)</code></pre>
+<pre><code>## 
+## Call:
+## NULL
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.9785554  0.2067003  -9.572  &lt; 2e-16 ***
+## slat         0.0120309  0.0033344   3.608 0.000308 ***
+## slon         0.0085452  0.0020045   4.263 2.02e-05 ***
+## mag          0.7974274  0.0306795  25.992  &lt; 2e-16 ***
+## wid          0.0054422  0.0001725  31.556  &lt; 2e-16 ***
+## `mag:wid`   -0.0006512  0.0001119  -5.820 5.87e-09 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 33182  on 29506  degrees of freedom
+## Residual deviance: 25463  on 29501  degrees of freedom
+## AIC: 25475
+## 
+## Number of Fisher Scoring iterations: 6</code></pre>
+<p>Findings:</p>
+<ul>
+<li><p>The model achieved a high ROC value (0.835), with strong
+sensitivity (0.954) but low specificity (0.393).</p></li>
+<li><p>Significant predictors included magnitude, width, latitude, and
+longitude, with interaction effects indicating compounding risk
+factors.</p></li>
+</ul>
+</div>
+<div
+id="does-the-distribution-of-tornado-widths-fit-an-exponential-distribution"
+class="section level2">
+<h2>3: Does the distribution of tornado widths fit an exponential
+distribution?</h2>
+<p>In order to evaluate whether tornado widths follow an exponential
+distribution, we use Maximum Likelihood Estimation (MLE) was used to
+estimate the rate parameter (λ).</p>
+<pre class="r"><code>library(MASS)
+library(ggplot2)
+
+tornado_widths &lt;- cleaned$wid[!is.na(cleaned$wid)]
+
+exp_fit &lt;- fitdistr(tornado_widths, &quot;exponential&quot;)
+
+cat(&quot;MLE Estimated Rate (Lambda):&quot;, exp_fit$estimate, &quot;\n&quot;)</code></pre>
+<pre><code>## MLE Estimated Rate (Lambda): 0.007025694</code></pre>
+<pre class="r"><code>ggplot(data.frame(widths = tornado_widths), aes(x = widths)) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = &quot;lightblue&quot;, color = &quot;black&quot;) +
+  stat_function(fun = dexp, args = list(rate = exp_fit$estimate), color = &quot;red&quot;, size = 1) +
+  labs(
+    title = &quot;Tornado Widths and Fitted Exponential Distribution&quot;,
+    x = &quot;Tornado Width&quot;,
+    y = &quot;Density&quot;
+  ) +
+  theme_minimal()</code></pre>
+<p><img src="report_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Findings:</p>
+<ul>
+<li><p>Estimated λ = 0.0070 indicated a rapid decline in the density of
+larger tornado widths.</p></li>
+<li><p>The exponential distribution captured the general trend, although
+deviations in the right tail suggested underfitting for exceptionally
+wide tornadoes.</p></li>
+</ul>
+</div>
 <div id="how-do-fatalities-and-loss-differ-across-seasons"
 class="section level2">
-<h2>3. How do fatalities and loss differ across seasons</h2>
+<h2>4. How do fatalities and loss differ across seasons</h2>
 <p>To investigate whether there are significant differences in
 fatalities and injuries across seasons (Winter, Spring, Summer, Fall), a
 non-parametric method was used here to compare the medians of loss and
@@ -341,16 +591,6 @@ includes a categorical variable season and continuous variables loss and
 fat (fatalities). The test statistic was calculated, and p-values were
 used to assess the significance of the differences (significance
 level=0.05).</p>
-<pre class="r"><code>tornado_data &lt;- read.csv(&quot;./data/1950-2023_actual_tornadoes.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;N/A&quot;, &quot; &quot;))
-
-cleaned &lt;- tornado_data |&gt;
-  filter(yr &gt;= 2000) |&gt;
-  select(-tz, -stf, -ns, -sn, -sg, -f1, -f2, -f3, -f4) |&gt;
-  relocate(fc, .after = mag)|&gt;
-  drop_na()
-  
-# Optional
-write.csv(cleaned, &quot;cleaned_df.csv&quot;, row.names = FALSE)</code></pre>
 <pre class="r"><code>cleaned=cleaned |&gt; 
   mutate(
     # Create season as a factor based on the month
@@ -443,7 +683,7 @@ Summer and Winter to address the heightened risks of fatalities.</p>
 <div
 id="how-does-the-magnitude-of-events-predict-the-distribution-of-fatalities"
 class="section level2">
-<h2>4. How does the magnitude of events predict the distribution of
+<h2>5. How does the magnitude of events predict the distribution of
 fatalities?</h2>
 <p>To examine whether there is an association between the variables
 <code>mag</code> (magnitude) and <code>fat</code> (fatalities) in the
@@ -472,7 +712,7 @@ magnitudes are likely to result in more fatalities.</p>
 <div
 id="model-comparison-on-predicting-fatalities-based-on-event-characteristics."
 class="section level2">
-<h2>5. Model comparison on predicting fatalities based on event
+<h2>6. Model comparison on predicting fatalities based on event
 characteristics.</h2>
 <p>The linear regression model was then developed to analyze the
 relationship between fatalities (fat) as the dependent variable and
@@ -492,7 +732,7 @@ lm_spec =linear_reg()|&gt;
 final_model=lm(fat ~ mag + inj + loss + len + wid, data = cleaned)
 
 check_model(final_model, check = c(&quot;linearity&quot;, &quot;qq&quot;, &quot;homogeneity&quot;, &quot;outliers&quot;))</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="report_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <div id="diagnostic-report-for-linear-regression-model"
 class="section level3">
 <h3>Diagnostic Report for Linear Regression Model</h3>
@@ -671,7 +911,7 @@ print(summary_results)</code></pre>
 <pre><code>## # A tibble: 1 × 2
 ##   mean_rmse_model1 mean_rmse_model2
 ##              &lt;dbl&gt;            &lt;dbl&gt;
-## 1            0.710             1.12</code></pre>
+## 1            0.718             1.14</code></pre>
 <pre class="r"><code>cv_long=cv_results |&gt; select(starts_with(&quot;rmse&quot;))|&gt;
   pivot_longer(
     everything(),
@@ -689,7 +929,7 @@ cv_long|&gt;ggplot(aes(x = model, y = rmse)) +
     y = &quot;RMSE&quot;
   ) +
   theme_minimal()</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="report_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
 <p>It is observed that the better performance of the first model
 <code>model1_mod</code> using cross-validation is slightly better
 compared to the second model <code>model2_mod</code>, with the RMSE
@@ -706,6 +946,53 @@ of fitting multiple polynomial terms without overfitting.</p>
 </div>
 <div id="discussion" class="section level1">
 <h1>Discussion</h1>
+<p>The first three models provided detailed insights into different
+aspects of tornado behavior and their associated impacts. The decision
+tree model identified the magnitude of tornadoes as the most significant
+factor influencing injuries. Tornadoes with lower magnitudes
+(<code>mag</code> &lt; 4) resulted in minimal injuries, whereas those
+with higher magnitudes (<code>mag</code> ≥ 4) were associated with
+substantial injuries, further exacerbated by factors like long paths or
+high property losses. This result aligns with existing literature and
+reinforces the critical role of magnitude in assessing tornado risks.
+However, the model’s hierarchical structure highlights that while
+magnitude dominates, secondary factors such as path length and property
+loss play crucial roles in predicting outcomes for more severe
+events.</p>
+<p>The logistic regression model further explored the predictors of
+long-path tornadoes, emphasizing the importance of magnitude and width
+alongside geographic factors like latitude and longitude. This model
+demonstrated strong sensitivity in identifying long-path tornadoes,
+underscoring its effectiveness in capturing high-risk events. However,
+the lower specificity indicated challenges in minimizing false
+positives, which could lead to overprediction of long-path tornadoes.
+This limitation suggests a need for further refinement, possibly through
+the inclusion of additional predictors or adjustments for data
+imbalances. Despite this, the model’s ability to generalize well across
+data, as evidenced by the cross-validation results, highlights its
+robustness for predictive purposes.</p>
+<p>The exponential distribution model of tornado widths provided
+insights into the distributional characteristics of tornado dimensions.
+The fitted model captured the general trend of tornado widths, with a
+high frequency of narrower tornadoes dominating the dataset. The
+estimated rate parameter (λ) reflected the steep decline in density as
+width increased. However, deviations in the right tail of the
+distribution suggested that the model underfit extreme cases of
+exceptionally wide tornadoes, limiting its capacity to address outliers
+effectively. This finding points to the potential for alternative
+modeling approaches to better capture the characteristics of rare but
+impactful extreme-width tornadoes.</p>
+<p>Across the models, magnitude consistently emerged as a dominant
+variable, influencing both the frequency of injuries and the likelihood
+of long paths. Additionally, the exponential distribution of tornado
+widths provided a strong foundation for understanding the distributional
+trends but revealed the need for more nuanced modeling of outliers.
+Together, these models contribute to a comprehensive understanding of
+tornado impacts, offering actionable insights for risk mitigation and
+disaster preparedness. While effective in their specific applications,
+each model also presented limitations, such as underfitting extreme
+values or overpredicting certain outcomes, highlighting areas for future
+refinement and methodological improvement.</p>
 <p>The statistical analysis also explores the seasonal variations in
 tornado impacts, and focus on economic losses and fatalities, and some
 other factors related to the tornado. The analysis demonstrated
